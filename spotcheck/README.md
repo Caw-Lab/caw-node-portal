@@ -2,6 +2,14 @@
 
 A light check of what a CAW node serves. Unofficial. It complements the full check that downloads every file; it does not replace it.
 
+## What it is for
+
+It is **monitoring**, for nodes whose operators want to notice accidents: a partial or stale deployment, a damaged file, a file changed after the build, a script added to `index.html`, a file list that was replaced without a new version string. Every result is kept with a timestamp, so the history of a node's frontend can be looked up.
+
+It is **not a trust badge**. A match does not show that a node is safe, or that it serves the official code. It checks a node against its own file list, never against the upstream repository, and a node that changes both the files and its file list passes. The portal says so on the page, and the wording of the results is kept neutral on purpose.
+
+The nodes that are checked are listed in `targets.json`, and only those are ever contacted.
+
 ## What it does
 
 Most CAW nodes publish `/build-manifest.json`: the files of their frontend build, with a SHA-256 for each. spotcheck downloads some of those files from the node and compares them with **the node's own list**:

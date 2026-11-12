@@ -8,7 +8,8 @@
 // The list of nodes is read from the NODES array in the portal page and/or from
 // a JSON file (an array of addresses, or of objects with an "apiUrl"). A node
 // whose host name is in the opt-out file is skipped and left out of the output.
-// With --only, just the listed host names are checked (for a first, small run).
+// With --only, just the listed host names are checked; the last results of the
+// other listed nodes are kept in the output.
 // Exit code is 0 whatever the nodes answer; it is 1 only if the run could not
 // be set up (no nodes, unreadable files).
 import { appendFileSync, existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
@@ -90,13 +91,15 @@ async function main() {
   const optOut = readOptOut(options.optout);
   const get = createGet({ allowLocal: options.allowLocal });
 
-  const origins = [];
+  const listed = []; // every node on the list (opt-outs left out)
+  const origins = []; // the ones to check in this run
   const skipped = [];
   for (const address of readNodeList(options)) {
     try {
       const origin = checkTarget(address, { allowLocal: options.allowLocal });
       const host = new URL(origin).hostname.toLowerCase();
       if (optOut.has(host)) continue;
+      if (!listed.includes(origin)) listed.push(origin);
       if (options.only && !options.only.includes(host)) continue;
       if (!origins.includes(origin)) origins.push(origin);
     } catch (error) {
@@ -119,7 +122,14 @@ async function main() {
     console.log(`${result.state.padEnd(12)} ${origin} ${result.clientVersion ?? ''}${counts}`);
   }
 
-  const output = { tool: TOOL, generatedAt: new Date().toISOString(), sampleSize: options.sample, skipped, nodes };
+  // Keep the last result of every listed node that was not checked in this run
+  // (a run limited with --only must not wipe the others); drop nodes that are no longer listed.
+  const merged = {};
+  for (const origin of listed) {
+    if (nodes[origin]) merged[origin] = nodes[origin];
+    else if (previous.nodes?.[origin]) merged[origin] = previous.nodes[origin];
+  }
+  const output = { tool: TOOL, generatedAt: new Date().toISOString(), sampleSize: options.sample, skipped, nodes: merged };
   writeFileSync(options.out + '.tmp', JSON.stringify(output, null, 2) + '\n');
   renameSync(options.out + '.tmp', options.out);
 
