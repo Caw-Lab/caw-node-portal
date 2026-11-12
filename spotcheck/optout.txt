@@ -1,0 +1,3 @@
+# Host names that spotcheck must not contact, one per line (lower case).
+# Example:
+# node.example.com
