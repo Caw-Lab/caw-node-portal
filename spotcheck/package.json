@@ -1,0 +1,10 @@
+{
+  "name": "caw-node-portal-spotcheck",
+  "private": true,
+  "type": "module",
+  "description": "A light check of what a CAW node serves, against the node's own build-manifest.json.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}
