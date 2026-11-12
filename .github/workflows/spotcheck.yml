@@ -5,9 +5,16 @@ name: spotcheck
 # of main does not grow). The portal page reads it from raw.githubusercontent.com.
 # Not enabled until this file is on the default branch.
 on:
-  schedule:
-    - cron: '17 * * * *'
+  # The schedule is off until a first manual run has been checked.
+  # To turn it on, remove the leading '#' of the next two lines.
+  # schedule:
+  #   - cron: '17 * * * *'
   workflow_dispatch:
+    inputs:
+      only:
+        description: 'Host names to check, separated by commas. Empty = every node on the portal page.'
+        required: false
+        default: 'cawnest.com'
 
 permissions:
   contents: write
@@ -40,7 +47,14 @@ jobs:
           fi
 
       - name: Run the spot check
-        run: node spotcheck/run.mjs --portal-html index.html --optout spotcheck/optout.txt --previous previous.json --out status.json
+        env:
+          ONLY: ${{ inputs.only }}
+        run: |
+          if [ -n "${ONLY:-}" ]; then
+            node spotcheck/run.mjs --portal-html index.html --optout spotcheck/optout.txt --previous previous.json --only "$ONLY" --out status.json
+          else
+            node spotcheck/run.mjs --portal-html index.html --optout spotcheck/optout.txt --previous previous.json --out status.json
+          fi
 
       - name: Publish status.json on the data branch
         run: |

@@ -41,7 +41,7 @@ node spotcheck/run.mjs --portal-html index.html --out status.json
 node spotcheck/run.mjs --nodes nodes.json --previous status.json --out status.json
 ```
 
-`--portal-html` reads the `NODES` array of the portal page; `--nodes` reads a JSON array of addresses (or of objects with an `apiUrl`). Other options: `--optout file`, `--sample N` (default 20), `--max-nodes N` (default 40). The exit code is 0 whatever the nodes answer, and 1 if the run could not be set up.
+`--portal-html` reads the `NODES` array of the portal page; `--nodes` reads a JSON array of addresses (or of objects with an `apiUrl`). Other options: `--optout file`, `--only host1,host2` (check just these hosts, for a first small run), `--sample N` (default 20), `--max-nodes N` (default 40). The exit code is 0 whatever the nodes answer, and 1 if the run could not be set up.
 
 Tests: `cd spotcheck && npm test`.
 

@@ -3,11 +3,12 @@
 //
 //   node spotcheck/run.mjs --portal-html index.html --out status.json
 //        [--nodes extra.json] [--previous old-status.json] [--optout optout.txt]
-//        [--sample 20] [--max-nodes 40]
+//        [--only host1,host2] [--sample 20] [--max-nodes 40]
 //
 // The list of nodes is read from the NODES array in the portal page and/or from
 // a JSON file (an array of addresses, or of objects with an "apiUrl"). A node
 // whose host name is in the opt-out file is skipped and left out of the output.
+// With --only, just the listed host names are checked (for a first, small run).
 // Exit code is 0 whatever the nodes answer; it is 1 only if the run could not
 // be set up (no nodes, unreadable files).
 import { appendFileSync, existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
@@ -17,16 +18,25 @@ import { checkTarget, createGet } from './net.js';
 const TOOL = 'spotcheck/0.1';
 
 function parseArgs(argv) {
-  const options = { sample: 20, maxNodes: 40, allowLocal: false };
+  const options = { sample: 20, maxNodes: 40, allowLocal: false, only: null };
   for (let i = 0; i < argv.length; i++) {
     const key = argv[i];
     if (key === '--allow-local') options.allowLocal = true;
-    else if (['--portal-html', '--nodes', '--out', '--previous', '--optout', '--sample', '--max-nodes'].includes(key)) {
+    else if (['--portal-html', '--nodes', '--out', '--previous', '--optout', '--only', '--sample', '--max-nodes'].includes(key)) {
       const value = argv[++i];
       if (value === undefined) throw new Error(key + ' needs a value');
       options[key.slice(2).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = value;
     } else {
       throw new Error('unknown option ' + key);
+    }
+  }
+  if (options.only !== null) {
+    options.only = String(options.only)
+      .split(',')
+      .map((host) => host.trim().toLowerCase())
+      .filter(Boolean);
+    if (options.only.length === 0 || options.only.some((host) => !/^[a-z0-9.-]{1,253}$/.test(host))) {
+      throw new Error('--only takes host names separated by commas');
     }
   }
   options.sample = Number(options.sample);
@@ -87,6 +97,7 @@ async function main() {
       const origin = checkTarget(address, { allowLocal: options.allowLocal });
       const host = new URL(origin).hostname.toLowerCase();
       if (optOut.has(host)) continue;
+      if (options.only && !options.only.includes(host)) continue;
       if (!origins.includes(origin)) origins.push(origin);
     } catch (error) {
       skipped.push({ address: String(address).slice(0, 80), reason: error.message });
