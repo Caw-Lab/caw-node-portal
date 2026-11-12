@@ -1,20 +1,17 @@
 name: spotcheck
 
-# Checks the nodes listed on the portal page and publishes status.json on the
+# Checks the nodes in spotcheck/targets.json (and no others) and publishes status.json on the
 # `data` branch (an orphan branch that is replaced on every run, so the history
 # of main does not grow). The portal page reads it from raw.githubusercontent.com.
-# Not enabled until this file is on the default branch.
 on:
-  # The schedule is off until a first manual run has been checked.
-  # To turn it on, remove the leading '#' of the next two lines.
-  # schedule:
-  #   - cron: '17 * * * *'
+  schedule:
+    - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
       only:
-        description: 'Host names to check, separated by commas. Empty = every node on the portal page.'
+        description: 'Host names to check, separated by commas. Empty = every node in spotcheck/targets.json.'
         required: false
-        default: 'cawnest.com'
+        default: ''
 
 permissions:
   contents: write
@@ -51,9 +48,9 @@ jobs:
           ONLY: ${{ inputs.only }}
         run: |
           if [ -n "${ONLY:-}" ]; then
-            node spotcheck/run.mjs --portal-html index.html --optout spotcheck/optout.txt --previous previous.json --only "$ONLY" --out status.json
+            node spotcheck/run.mjs --nodes spotcheck/targets.json --optout spotcheck/optout.txt --previous previous.json --only "$ONLY" --out status.json
           else
-            node spotcheck/run.mjs --portal-html index.html --optout spotcheck/optout.txt --previous previous.json --out status.json
+            node spotcheck/run.mjs --nodes spotcheck/targets.json --optout spotcheck/optout.txt --previous previous.json --out status.json
           fi
 
       - name: Publish status.json on the data branch
