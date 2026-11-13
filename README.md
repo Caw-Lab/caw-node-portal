@@ -2,6 +2,8 @@
 
 A single static page that lists CAW nodes and measures, from the visitor's browser, the round-trip time to each one every 5 seconds.
 
+**Open it: https://caw-lab.github.io/caw-node-portal/**
+
 This is an unofficial mock. The page starts from a snapshot of `/api/instances` taken on 2026-10-25 (duplicate registrations removed), then builds the list live: the visitor's browser fetches `/api/instances` from every node on the page and merges the lists. Comments are placeholders.
 
 Live list:
@@ -14,13 +16,15 @@ Live list:
 
 ## Use
 
-The page does not run on GitHub: opening `index.html` in the repository only shows its source. To run it, download `index.html` and open the downloaded file in a browser. No build step, no server.
+Open https://caw-lab.github.io/caw-node-portal/ in a browser. No build step, no server, nothing to install.
 
-The repository is private now, so it cannot be published as a web page. If it becomes public, it could be opened in a browser directly with GitHub Pages, without downloading the file. (On a free plan, GitHub Pages needs a public repository. Not verified for this organization's plan.)
+The page is published with GitHub Pages from the `main` branch of this repository. To run it from your own computer, download `index.html` and open the downloaded file in a browser (opening `index.html` in the repository only shows its source).
 
 ## Scope
 
 The page only does what a single HTML file can do on its own, in the visitor's browser. There is no server component, and none is needed at this stage. Adding more features (for example, reading a node's health or statistics, or keeping a shared curated list) would need a server, because most node endpoints cannot be read from a browser. We have decided that is not needed for now.
+
+The one part that does not run in the browser is the optional file-consistency spot check (`spotcheck/`), which a scheduled GitHub Actions run performs for a short list of nodes. It is **paused** (since 2026-11-13); see below.
 
 ## Caution
 
@@ -35,6 +39,7 @@ Each card shows what can be checked from here. None of them proves that a node i
 - "Listed by M of N nodes" / "Not in the live lists": see the live list above.
 - "Responding": measured live, from the visitor's browser.
 - "Hand-picked": nodes we chose by hand, shown apart from the registry list.
+- File consistency (monitoring): only for the nodes in `spotcheck/targets.json`, and only while a status file exists. A scheduled run downloads some of the files a node serves and compares them with that node's own file list. It notices accidents (a partial or stale deployment, a damaged file); it does not show that a node is trustworthy or serves the official code. **Paused:** the hourly run is off, so this badge and its section are hidden. See [`spotcheck/README.md`](spotcheck/README.md) for how it works and how to start it again.
 
 ## Not included
 
