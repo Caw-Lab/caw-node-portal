@@ -45,3 +45,7 @@ Each card shows what can be checked from here. None of them proves that a node i
 
 - The CAW logo and the Fraunces font. The upstream repository has no license file, so the logo is not redistributed here. Without them the page falls back to Georgia/serif and shows no logo.
 - Latency is measured by the browser, so a node must allow cross-origin requests (CORS) to be measured.
+
+## License
+
+MIT, see [`LICENSE`](LICENSE). Copyright (c) 2026 zinsanjp and contributors. The CAW logo and the Fraunces font are not part of this repository and are not covered by it (see "Not included").
