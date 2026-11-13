@@ -71,3 +71,7 @@ The list of nodes comes from the network, so each address is treated as untruste
 ## License
 
 MIT, see `LICENSE`.
+
+## Paused
+
+The hourly run is paused (2026-11-13) while the portal moves to another owner; the workflow can still be started by hand. The page works without a status file: the check section stays hidden until one exists. To start the schedule again, restore the `schedule` entry in `.github/workflows/spotcheck.yml` and update the repository address in `spotcheck/net.js` (the `USER_AGENT`) and in `index.html` (`FC_URL`).

@@ -3,9 +3,11 @@ name: spotcheck
 # Checks the nodes in spotcheck/targets.json (and no others) and publishes status.json on the
 # `data` branch (an orphan branch that is replaced on every run, so the history
 # of main does not grow). The portal page reads it from raw.githubusercontent.com.
+# PAUSED (2026-11-13): the hourly schedule is off while the portal moves to another owner. To start it again,
+# put back the schedule below and update the addresses named in spotcheck/net.js and index.html (FC_URL).
+#   schedule:
+#     - cron: '17 * * * *'
 on:
-  schedule:
-    - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
       only:
@@ -22,7 +24,7 @@ concurrency:
 
 jobs:
   check:
-    if: github.repository == 'Zinsanjp/caw-node-portal'
+    if: github.repository == 'Zinsanjp/caw-node-portal' || github.repository == 'Caw-Lab/caw-node-portal'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
