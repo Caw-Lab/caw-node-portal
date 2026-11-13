@@ -26,6 +26,8 @@ The page only does what a single HTML file can do on its own, in the visitor's b
 
 The one part that does not run in the browser is the optional file-consistency spot check (`spotcheck/`), which a scheduled GitHub Actions run performs for a short list of nodes. It is **paused** (since 2026-11-13); see below.
 
+Each registered node also has a link that opens a separate trial service ([caw-frontend-verify](https://github.com/Caw-Lab/caw-frontend-verify), run by one person, not by Caw-Lab) with the node's address filled in. The link only fills in the address: the check starts there, when the person presses the button, and the portal itself shows no result.
+
 ## Caution
 
 The node list comes from the on-chain instance registry, where anyone can register any URL (`registerInstance` is permissionless). A listed node is not verified as legitimate; the page says so next to the list.
