@@ -1,0 +1,39 @@
+{
+ "schemaVersion": 1,
+ "kind": "caw-network-stats",
+ "generatedAt": "2026-11-14T10:52:33.773Z",
+ "note": "Testnet. users, posts and activeWeek are the largest value among the nodes that answered (what the nodes report); actions and depositedWei are read from the chains. frontends: for the nodes whose address answers with a page and a script (served) or does not (api-only), as seen by this run.",
+ "latest": {
+  "date": "2026-11-14",
+  "users": 69,
+  "posts": 619,
+  "activeWeek": 3,
+  "actions": 1587,
+  "depositedWei": "11000004229162450356202134848238889270",
+  "nodesAsked": 9,
+  "nodesAnswered": 9
+ },
+ "frontends": {
+  "https://caw-node-api.takstarjp.workers.dev": "api-only",
+  "https://cawnest.com": "served",
+  "https://dark-caw.com": "served",
+  "https://lab.tencaw-node.com": "served",
+  "https://node.ahdmesh.com": "served",
+  "https://node.biancamesh.com": "served",
+  "https://tencawffee.com": "served",
+  "https://v2.cawobservatory.net": "served",
+  "https://v2.nyaromesama.com": "served"
+ },
+ "history": [
+  {
+   "date": "2026-11-14",
+   "users": 69,
+   "posts": 619,
+   "activeWeek": 3,
+   "actions": 1587,
+   "depositedWei": "11000004229162450356202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 9
+  }
+ ]
+}
