@@ -1,0 +1,10 @@
+{
+  "name": "caw-node-portal-netstats",
+  "private": true,
+  "type": "module",
+  "description": "The network numbers of the portal: what the nodes report, and two numbers read from the chains.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}
