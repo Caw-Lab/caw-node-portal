@@ -24,7 +24,9 @@ The page is published with GitHub Pages from the `main` branch of this repositor
 
 The page only does what a single HTML file can do on its own, in the visitor's browser. There is no server component, and none is needed at this stage. Adding more features (for example, reading a node's health or statistics, or keeping a shared curated list) would need a server, because most node endpoints cannot be read from a browser. We have decided that is not needed for now.
 
-The one part that does not run in the browser is the optional file-consistency spot check (`spotcheck/`), which a scheduled GitHub Actions run performs for a short list of nodes. It runs every hour (it was paused on 2026-11-13 and started again on 2026-11-14); see below.
+Two optional parts do not run in the browser; each is a scheduled GitHub Actions run. First, the file-consistency spot check (`spotcheck/`), which a scheduled run performs for a short list of nodes. It runs every hour (it was paused on 2026-11-13 and started again on 2026-11-14); see below.
+
+Second, the network numbers (`netstats/`, once a day): a scheduled run collects the network numbers shown at the top of the page: users, posts and activity this week (what the nodes report about themselves, shown as "at least"), and the actions processed and the CAW in deposit (read from the testnet chains), with a small history. They are testnet numbers and say nothing about how much the network is really used. See [`netstats/README.md`](netstats/README.md) for how they are collected, how to opt out, and what they do not show.
 
 Each registered node also has a link that opens a separate trial service ([caw-frontend-verify](https://github.com/Caw-Lab/caw-frontend-verify), run by one person, not by Caw-Lab) with the node's address filled in. The link only fills in the address: the check starts there, when the person presses the button, and the portal itself shows no result.
 
