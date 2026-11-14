@@ -9,7 +9,7 @@ many actions the chain has processed, and how much CAW is held in deposit. A sch
 
 | number | where it comes from | what it is |
 |---|---|---|
-| users, posts, active users this week | each active node's public `/api/stats` | **what the nodes say about themselves**; the largest value among the nodes that answered. A node can be behind, or can report anything, so the page words it as "at least" |
+| users, posts, active users this week | each active node's public `/api/stats` | **what the nodes say about themselves**; the largest value among the nodes that answered. A node can be behind, or can report anything, so the page says they are what the nodes report and can be slightly off (under "About these numbers") |
 | actions processed | the chain: `networkActionCount(1)` of CawActions on Base Sepolia | the same for every node (posts, likes, follows and so on) |
 | CAW in deposit | the chain: the CAW balance of CawProfile on Sepolia | the CAW held by the CawProfile contract |
 

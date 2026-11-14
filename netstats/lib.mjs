@@ -3,7 +3,7 @@
 // The list of nodes comes from the network (the registry each seed node serves at /api/instances), so every
 // address is untrusted: it goes through the same checks as the spot check (https only, a real host name, no
 // private address, no redirect, a time and a size limit). A node's numbers are what that node says; a lying
-// node can only raise the maximum, which is why the page words them as "at least".
+// node can only raise the maximum, which is why the page says that they are what the nodes report and can be slightly off.
 import { checkTarget } from '../spotcheck/net.js';
 
 export class NoData extends Error {}

@@ -144,9 +144,9 @@ footer{margin:34px 0 40px;color:var(--faint);font-size:13px;display:flex;gap:6px
 <div class="sum-head"><h2 id="h-sum" data-i18n="h_sum"></h2><span class="asof" id="asof"></span></div>
 <div class="stats">
 <div class="stat"><div class="label" data-i18n="s_up"></div><div class="value"><span id="s_up_v">—</span><small id="s_up_of"></small></div><div class="hint"><div class="meter" id="s_up_meter" role="img"><i></i></div></div></div>
-<div class="stat" id="t_users" hidden><div class="label"><span data-i18n="n_users"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_users"></span><small id="u_users"></small></div><div class="hint"></div></div>
-<div class="stat" id="t_posts" hidden><div class="label"><span data-i18n="n_posts"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_posts"></span><small id="u_posts"></small></div><div class="hint"></div></div>
-<div class="stat" id="t_actions" hidden><div class="label"><span data-i18n="n_actions"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_actions"></span><small id="u_actions"></small></div><div class="hint"></div></div>
+<div class="stat" id="t_users" hidden><div class="label"><span data-i18n="n_users"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_users"></span></div><div class="hint"></div></div>
+<div class="stat" id="t_posts" hidden><div class="label"><span data-i18n="n_posts"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_posts"></span></div><div class="hint"></div></div>
+<div class="stat" id="t_actions" hidden><div class="label"><span data-i18n="n_actions"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_actions"></span></div><div class="hint"></div></div>
 </div>
 <div class="more-line"><span><span data-i18n="s_med"></span> <b id="s_med_v">—</b></span><span id="t_activeWeek" hidden><span data-i18n="n_week"></span> <b id="v_activeWeek"></b></span><span id="t_depositedWei" hidden><span data-i18n="n_dep"></span> <b id="v_depositedWei"></b></span></div>
 <details class="about" id="aboutnet" hidden><summary data-i18n="about"></summary><p id="netinfo"></p></details>
@@ -243,7 +243,7 @@ ja:{
   n_week:"今週の活動ユーザー(直近 7 日)",
   n_dep:"預けられた CAW(いまの残高)",
   about:"この数字について",
-  net_note:"テストネットの数字で、実際の利用の多さを示すものではありません。「累計」は、これまでの合計で、減ることはありません。「今週」は直近 7 日、「いまの残高」「いまの中央値」は現在の値です。ユーザー・投稿・今週の活動は、各ノードが申告した値の最大値(「以上」)。アクション数(投稿・いいね・フォローなど、チェーンが処理した操作の数)と預けられた CAW は、チェーンから読んだ値です。1 日 1 回の集計です。応答速度は、いまご覧のブラウザから各ノードへの往復時間です。",
+  net_note:"テストネットの数字で、実際の利用の多さを示すものではありません。「累計」は、これまでの合計で、減ることはありません。「今週」は直近 7 日、「いまの残高」「いまの中央値」は現在の値です。ユーザー・投稿・今週の活動は、各ノードが申告した値のうち最大のもので、同期の遅れなどで、実際とは少しずれることがあります。アクション数(投稿・いいね・フォローなど、チェーンが処理した操作の数)と預けられた CAW は、チェーンから読んだ値です。1 日 1 回の集計です。応答速度は、いまご覧のブラウザから各ノードへの往復時間です。",
   h_nodes:"ノード一覧",
   f_all:"すべて",
   f_up:"応答ありのみ",
@@ -348,7 +348,7 @@ en:{
   n_week:"Active users this week (last 7 days)",
   n_dep:"CAW in deposit (current balance)",
   about:"About these numbers",
-  net_note:"Testnet numbers; they do not show how much the network is really used. “Total” is the sum so far and never goes down. “This week” is the last 7 days; “current balance” and “median, now” are present values. Users, posts and activity this week are the largest values the nodes reported about themselves (“or more”). Actions (posts, likes, follows and other operations the chain processed) and CAW in deposit are read from the chains. Collected once a day. Response time is the round trip from the browser you are using to each node.",
+  net_note:"Testnet numbers; they do not show how much the network is really used. “Total” is the sum so far and never goes down. “This week” is the last 7 days; “current balance” and “median, now” are present values. Users, posts and activity this week are the largest values the nodes reported about themselves, and can be slightly off (for example when a node is behind). Actions (posts, likes, follows and other operations the chain processed) and CAW in deposit are read from the chains. Collected once a day. Response time is the round trip from the browser you are using to each node.",
   h_nodes:"Nodes",
   f_all:"All",
   f_up:"Responding only",
@@ -582,17 +582,16 @@ function spark(tile,key){
 function renderNet(){
   const about=document.getElementById('aboutnet');const asof=document.getElementById('asof');
   if(!net){about.hidden=true;asof.textContent='';return}
-  const L=net.latest;const more=lang==='ja'?'以上':'+';
+  const L=net.latest;
   const tiles={users:L.users,posts:L.posts,actions:L.actions};
   for(const key of Object.keys(tiles)){
     const tile=document.getElementById('t_'+key);const n=tiles[key];
     tile.hidden=n===null;
     document.getElementById('v_'+key).textContent=n===null?'':NET.groupDigits(n);
-    document.getElementById('u_'+key).textContent=n===null||key==='actions'?'':more;
     if(n!==null)spark(tile,key);else{const old=tile.querySelector('svg');if(old)old.remove()}
   }
   const wk=document.getElementById('t_activeWeek');wk.hidden=L.activeWeek===null;
-  document.getElementById('v_activeWeek').textContent=L.activeWeek===null?'':NET.groupDigits(L.activeWeek)+(lang==='ja'?' 以上':'+');
+  document.getElementById('v_activeWeek').textContent=L.activeWeek===null?'':NET.groupDigits(L.activeWeek);
   const dep=NET.formatCaw(L.depositedWei);const dt=document.getElementById('t_depositedWei');dt.hidden=dep===null;
   document.getElementById('v_depositedWei').textContent=dep===null?'':dep;
   about.hidden=false;
