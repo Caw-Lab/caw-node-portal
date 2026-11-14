@@ -1,0 +1,98 @@
+{
+  "tool": "spotcheck/0.1",
+  "generatedAt": "2026-11-14T15:49:15.827Z",
+  "sampleSize": 20,
+  "skipped": [],
+  "nodes": {
+    "https://cawnest.com": {
+      "origin": "https://cawnest.com",
+      "state": "consistent",
+      "checkedAt": "2026-11-14T15:49:05.998Z",
+      "clientVersion": "97cd13f3+dirty",
+      "builtAt": "2026-10-31T08:09:50.331Z",
+      "manifestHash": "23e84a4e866862be50ceb74055bd86cc99ef96fb926fe9a21c07b297cf641580",
+      "fileCount": 359,
+      "checked": 35,
+      "counts": {
+        "matched": 35,
+        "mismatched": 0,
+        "missing": 0,
+        "errored": 0
+      },
+      "complete": true,
+      "indexHtml": "exact",
+      "versionChanged": false,
+      "externalScripts": [
+        "https://fonts.googleapis.com/css2"
+      ],
+      "problems": [],
+      "history": [
+        {
+          "at": "2026-11-14T01:31:12.199Z",
+          "clientVersion": "97cd13f3+dirty",
+          "manifestHash": "23e84a4e866862be50ceb74055bd86cc99ef96fb926fe9a21c07b297cf641580"
+        }
+      ]
+    },
+    "https://lab.tencaw-node.com": {
+      "origin": "https://lab.tencaw-node.com",
+      "state": "consistent",
+      "checkedAt": "2026-11-14T15:49:07.801Z",
+      "clientVersion": "83393808+dirty",
+      "builtAt": "2026-11-09T13:37:01.252Z",
+      "manifestHash": "afcbbb8ca14899d69b3c242ed039e79959cce8c529ee99626e86346d810060f7",
+      "fileCount": 358,
+      "checked": 34,
+      "counts": {
+        "matched": 34,
+        "mismatched": 0,
+        "missing": 0,
+        "errored": 0
+      },
+      "complete": true,
+      "indexHtml": "exact",
+      "versionChanged": false,
+      "externalScripts": [
+        "https://fonts.googleapis.com/css2"
+      ],
+      "problems": [],
+      "history": [
+        {
+          "at": "2026-11-14T01:31:14.186Z",
+          "clientVersion": "83393808+dirty",
+          "manifestHash": "afcbbb8ca14899d69b3c242ed039e79959cce8c529ee99626e86346d810060f7"
+        }
+      ]
+    },
+    "https://tencawffee.com": {
+      "origin": "https://tencawffee.com",
+      "state": "consistent",
+      "checkedAt": "2026-11-14T15:49:11.924Z",
+      "clientVersion": "50af6cc5+dirty",
+      "builtAt": "2026-09-30T06:52:44.431Z",
+      "manifestHash": "8bc99927c2b48f724cf8d2c2e92047e071a3496ecc8a3aab31406cb20b903e00",
+      "fileCount": 358,
+      "checked": 34,
+      "counts": {
+        "matched": 34,
+        "mismatched": 0,
+        "missing": 0,
+        "errored": 0
+      },
+      "complete": true,
+      "indexHtml": "exact",
+      "versionChanged": false,
+      "externalScripts": [
+        "https://fonts.googleapis.com/css2"
+      ],
+      "problems": [],
+      "history": [
+        {
+          "at": "2026-11-14T01:31:17.873Z",
+          "clientVersion": "50af6cc5+dirty",
+          "manifestHash": "8bc99927c2b48f724cf8d2c2e92047e071a3496ecc8a3aab31406cb20b903e00"
+        }
+      ]
+    }
+  }
+}
