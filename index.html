@@ -155,7 +155,7 @@ footer{margin:34px 0 40px;color:var(--faint);font-size:13px;display:flex;gap:6px
 <section class="nodes" aria-labelledby="h-nodes">
 <div class="list-head"><h2 id="h-nodes" data-i18n="h_nodes"></h2>
 <div class="controls"><div class="seg" id="filterseg" role="group"><button type="button" data-k="f" data-v="all" data-i18n="f_all"></button><button type="button" data-k="f" data-v="up" data-i18n="f_up"></button></div>
-<select id="sortsel"><option value="default" data-i18n="o_def"></option><option value="fast" data-i18n="o_fast"></option><option value="listed" data-i18n="o_listed"></option></select>
+<select id="sortsel"><option value="default" data-i18n="o_def"></option><option value="fast" data-i18n="o_fast"></option><option value="listed" data-i18n="o_listed"></option><option value="watched" data-i18n="o_watched"></option></select>
 <button type="button" class="ghost" id="re" data-i18n="measure"></button></div></div>
 <p class="note" data-i18n="caution"></p><p class="note ok" id="regnote" hidden></p>
 <div class="cols" aria-hidden="true"><span></span><span data-i18n="col_node"></span><span data-i18n="col_speed"></span><span></span></div>
@@ -281,7 +281,8 @@ ja:{
   tt_snapshot:"一覧は、各ノードの /api/instances を、このブラウザが取得して集計します。",
   b_apionly:"API専用",
   t_apionly:"このアドレスは、画面のプログラムを配っていないように見えます(トップページが開いても、画面が組み立てられません)。API 専用のノードの可能性があります。1 日 1 回、サーバー側から確認した結果です。",
-  help_apionly:"そのアドレスは、画面のプログラムを配っていないように見えます。サイトを開いても、画面が表示されない可能性があります。1 日 1 回の確認結果で、ノードに問題がある、という意味ではありません。一覧の最後に並べます。"
+  help_apionly:"そのアドレスは、画面のプログラムを配っていないように見えます。サイトを開いても、画面が表示されない可能性があります。1 日 1 回の確認結果で、ノードに問題がある、という意味ではありません。一覧の最後に並べます。",
+  o_watched:"ファイル監視中を先に"
 },
 en:{
   fc_note:"Every hour, a GitHub server downloads some of the files a node serves and compares them with that node’s own file list (build-manifest.json). This is monitoring, to notice accidents, damage and mismatched deployments. It does not show that a node can be trusted, or that it serves the official code (the GitHub master). If a node changed both the files and its file list, this does not find it.",
@@ -385,7 +386,8 @@ en:{
   tt_snapshot:"The list is built by this browser from each node’s /api/instances.",
   b_apionly:"API only",
   t_apionly:"This address does not seem to serve a frontend (the top page may open, but the screen cannot be built). It may be an API-only node. Checked once a day from the server side.",
-  help_apionly:"That address does not seem to serve a frontend, so opening the site may show an empty screen. It is the result of a daily check and does not mean the node has a problem. These nodes are listed last."
+  help_apionly:"That address does not seem to serve a frontend, so opening the site may show an empty screen. It is the result of a daily check and does not mean the node has a problem. These nodes are listed last.",
+  o_watched:"Monitored files first"
 }
 };
 let lang='en';
@@ -542,7 +544,7 @@ async function loadFc(){
     if(!res.ok)return;
     const parsed=FC.parse(await res.json(),safeUrl);
     if(!parsed||parsed.nodes.size===0)return;
-    fc=parsed;rows.forEach(renderRow);renderFcSection();
+    fc=parsed;rows.forEach(renderRow);renderFcSection();sortCards();
   }catch(e){/* no status yet: the page works without it */}
 }
 // ---- network numbers: network.json is written by a scheduled GitHub run (see netstats/) ----
@@ -687,12 +689,13 @@ function aggregate(){
 function rank(r){return r.state==='ok'?((r.compl==='partial'||r.compl==='empty')?1:0):2}
 // Filter and sort apply to the registry list only (the mainline row stays at the top). "fast" uses the average of the last measurements in 100 ms steps, so rows do not jump on every refresh.
 const view={f:'all',o:'default'};
-try{const v=JSON.parse(localStorage.getItem('view')||'{}');if(v.f==='up')view.f='up';if(v.o==='fast'||v.o==='listed')view.o=v.o}catch(e){}
+try{const v=JSON.parse(localStorage.getItem('view')||'{}');if(v.f==='up')view.f='up';if(v.o==='fast'||v.o==='listed'||v.o==='watched')view.o=v.o}catch(e){}
 function cmp(a,b){
   const ao=(a.apiOnly?1:0)-(b.apiOnly?1:0);if(ao)return ao;
   const nm=String(a.n.apiUrl).localeCompare(String(b.n.apiUrl));
   if(view.o==='fast'){const k=r=>r.state==='ok'?Math.round((r.avg||r.ms)/100):1e9;return k(a)-k(b)||nm}
   if(view.o==='listed'){const k=r=>r.state==='ok'?-(r.n.seen||0):1;return k(a)-k(b)||rank(a)-rank(b)||nm}
+  if(view.o==='watched'){const k=r=>fc&&r.url&&fc.nodes.has(r.url)?0:1;return k(a)-k(b)||rank(a)-rank(b)||nm}
   return rank(a)-rank(b)||nm;
 }
 function sortCards(){
@@ -709,7 +712,7 @@ for(const b of document.querySelectorAll('#filterseg button'))b.onclick=()=>{
   for(const x of document.querySelectorAll('#filterseg button'))x.setAttribute('aria-pressed',String(view.f===x.dataset.v));
   sortCards();
 };
-document.getElementById('sortsel').onchange=ev=>{const v=ev.target.value;if(v==='default'||v==='fast'||v==='listed'){view.o=v;saveView();sortCards()}};
+document.getElementById('sortsel').onchange=ev=>{const v=ev.target.value;if(v==='default'||v==='fast'||v==='listed'||v==='watched'){view.o=v;saveView();sortCards()}};
 function renderSummary(){
   const ms=rows.filter(r=>r.url&&r.state);const ok=ms.filter(r=>r.state==='ok');
   const up=document.getElementById('s_up_v');
