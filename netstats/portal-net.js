@@ -27,14 +27,24 @@
     };
   }
 
-  // Returns { latest, history, generatedAt } (generatedAt is a date, YYYY-MM-DD), or null if the data is not usable.
+  // Which addresses serve a frontend, as the scheduled run saw it: { 'https://host': 'served' | 'api-only' }. Only those two words are kept.
+  function frontends(data) {
+    const out = Object.create(null);
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return out;
+    for (const [key, value] of Object.entries(data).slice(0, 200)) {
+      if (key.length <= 200 && /^https:\/\/[a-z0-9.-]+$/.test(key) && (value === 'served' || value === 'api-only')) out[key] = value;
+    }
+    return out;
+  }
+
+  // Returns { latest, history, generatedAt, frontends } (generatedAt is a date, YYYY-MM-DD), or null if the data is not usable.
   function parse(data) {
     if (!data || typeof data !== 'object' || data.schemaVersion !== 1 || data.kind !== 'caw-network-stats') return null;
     const latest = entry(data.latest);
     if (!latest) return null;
     const history = Array.isArray(data.history) ? data.history.slice(-400).map(entry).filter(Boolean) : [];
     const generatedAt = typeof data.generatedAt === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(data.generatedAt) ? data.generatedAt.slice(0, 10) : latest.date;
-    return { latest, history, generatedAt };
+    return { latest, history, generatedAt, frontends: frontends(data.frontends) };
   }
 
   function groupDigits(value) {

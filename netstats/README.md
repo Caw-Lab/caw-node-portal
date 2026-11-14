@@ -25,7 +25,8 @@ is used.
 - Every address is untrusted: https only, a real host name (no IP address, no internal name, no port, no user name),
   a name that resolves to a private address is refused, redirects are not followed, and every request has a
   time and a size limit (the same checks as the spot check, `spotcheck/net.js`).
-- Asks each node for `/api/stats` once (four at a time). Only plausible whole numbers are kept.
+- Asks each node for `/api/stats` once (four at a time). Only plausible whole numbers are kept. Per node and per day that is, in all, three small requests (`/api/stats`, `/`, and the first bytes of the entry script).
+- Asks each node's top page (`/`) and, from the page, the first 256 bytes of its entry script (a range request), to see whether the address serves a frontend. The result is `served` (the script comes back as a script), `api-only` (no page, or a page whose script comes back as an HTML page, which is what a site shows for a file it does not have: a visitor sees an empty screen) or `unknown` (an error, a redirect, a script of another site; such a node is left out). It is published as `frontends` in `network.json`, and the portal marks an `api-only` node, hides its "Integrity check" button and lists it last. This is read here and not in the browser because a browser cannot read another site's files. A node's address in the registry is its API address, so a node can be fine and still be `api-only`.
 - Reads the two chain numbers with `eth_call` from public RPC endpoints.
 - Adds one entry per UTC day to the history of the previous file (a second run on the same day replaces it; at most 400 days).
 - If nothing at all could be read, nothing is written and the previous file stays.

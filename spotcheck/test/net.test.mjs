@@ -128,3 +128,32 @@ test('get gives up on a server that never answers', async () => {
     await site.close();
   }
 });
+
+test('get reports the content type, and can ask for the first bytes only', async () => {
+  const seen = [];
+  const site = await serve((req, res) => {
+    seen.push(req.headers.range || null);
+    if (req.url === '/js') {
+      res.writeHead(req.headers.range ? 206 : 200, { 'content-type': 'Text/JavaScript; charset=utf-8' });
+      res.end('const a=1;');
+    } else {
+      res.writeHead(200, { 'content-type': 'text/html' });
+      res.end('<!doctype html>');
+    }
+  });
+  try {
+    const get = createGet({ allowLocal: true });
+    const js = await get(site.origin + '/js', { maxBytes: 100, range: 'bytes=0-255' });
+    assert.equal(js.status, 206);
+    assert.equal(js.contentType, 'text/javascript; charset=utf-8');
+    const page = await get(site.origin + '/page', { maxBytes: 100 });
+    assert.equal(page.contentType, 'text/html');
+    assert.deepEqual(seen, ['bytes=0-255', null]);
+    for (const bad of ['bytes=0-', 'items=0-5', 'bytes=0-255, 300-400', 'bytes=-5', 'bytes=0-1234567890', 5]) {
+      await assert.rejects(() => get(site.origin + '/js', { maxBytes: 100, range: bad }), /range/, String(bad));
+    }
+    assert.equal(seen.length, 2, 'a refused range sends no request');
+  } finally {
+    await site.close();
+  }
+});

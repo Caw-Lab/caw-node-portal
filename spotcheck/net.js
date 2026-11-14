@@ -94,11 +94,12 @@ function decode(bytes, encoding, maxBytes) {
   throw new Error('unsupported content encoding');
 }
 
-// Returns get(url, { maxBytes }) => { status, bytes }.
+// Returns get(url, { maxBytes, range }) => { status, bytes, contentType }. `range` is "bytes=0-255" style: ask for the first bytes only
+// (a server that ignores it sends the whole file, which still has to fit in maxBytes).
 // The result is settled exactly once; every failure destroys the connection
 // and rejects, and errors that arrive after that are ignored.
 export function createGet({ allowLocal = false, timeoutMs = 12000, userAgent = USER_AGENT } = {}) {
-  return (rawUrl, { maxBytes }) =>
+  return (rawUrl, { maxBytes, range }) =>
     new Promise((resolve, reject) => {
       let settled = false;
       const succeed = (value) => {
@@ -125,11 +126,19 @@ export function createGet({ allowLocal = false, timeoutMs = 12000, userAgent = U
         return;
       }
       const client = url.protocol === 'http:' ? http : https;
+      const headers = { 'user-agent': userAgent, accept: '*/*', 'accept-encoding': 'identity' };
+      if (range !== undefined) {
+        if (!/^bytes=\d{1,9}-\d{1,9}$/.test(range)) {
+          fail(new Error('a range must look like bytes=0-255'));
+          return;
+        }
+        headers.range = range;
+      }
       request = client.request(
         url,
         {
           method: 'GET',
-          headers: { 'user-agent': userAgent, accept: '*/*', 'accept-encoding': 'identity' },
+          headers,
           lookup: guardedLookup(allowLocal),
           timeout: timeoutMs,
         },
@@ -142,7 +151,7 @@ export function createGet({ allowLocal = false, timeoutMs = 12000, userAgent = U
           }
           if (response.statusCode >= 300 && response.statusCode < 400) {
             response.resume();
-            succeed({ status: response.statusCode, bytes: new Uint8Array(0) });
+            succeed({ status: response.statusCode, bytes: new Uint8Array(0), contentType: '' });
             return;
           }
           const chunks = [];
@@ -159,7 +168,7 @@ export function createGet({ allowLocal = false, timeoutMs = 12000, userAgent = U
             try {
               const raw = Buffer.concat(chunks);
               const bytes = decode(raw, response.headers['content-encoding'], maxBytes);
-              succeed({ status: response.statusCode, bytes: new Uint8Array(bytes) });
+              succeed({ status: response.statusCode, bytes: new Uint8Array(bytes), contentType: String(response.headers['content-type'] || '').toLowerCase().slice(0, 100) });
             } catch (error) {
               fail(error);
             }

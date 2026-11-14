@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import { createGet } from '../../spotcheck/net.js';
 import {
-  CHAIN, aggregate, buildEntry, buildFile, collectChain, collectNodes, ethCall, hasData, mergeHistory, nodesFromRegistry, parseStats, utcDate,
+  CHAIN, aggregate, buildEntry, buildFile, collectChain, collectNodes, entryScript, ethCall, hasData, looksLikeHtml, mergeHistory, nodesFromRegistry, parseStats, probeFrontend, utcDate,
 } from '../lib.mjs';
 
 // A fake node: /api/stats answers `stats` (a string or an object), /api/instances answers `instances`.
@@ -98,7 +98,7 @@ test('an opted-out node is never contacted, and a seed that fails is skipped', a
 
 test('with no seed that answers, nothing is asked', async () => {
   const r = await collectNodes({ seeds: ['https://localhost'], get, optout: new Set() });
-  assert.deepEqual(r, { asked: 0, answered: 0, refused: 0, numbers: { users: null, posts: null, postsToday: null, activeWeek: null } });
+  assert.deepEqual(r, { asked: 0, answered: 0, refused: 0, numbers: { users: null, posts: null, postsToday: null, activeWeek: null }, frontends: {} });
 });
 
 // ---------------------------------------------------------------- the chain reads
@@ -171,4 +171,104 @@ test('hasData is false only when nothing was read', () => {
   assert.equal(hasData({ ...none, actions: 0 }), true);
   assert.equal(hasData({ ...none, depositedWei: '0' }), true);
   assert.equal(utcDate(Date.parse('2026-11-14T23:59:59Z')), '2026-11-14');
+});
+
+// ---------------------------------------------------------------- does the address serve a frontend?
+test('the entry script of a page: this site, another site, or none', () => {
+  assert.deepEqual(entryScript('<script type="module" crossorigin src="/assets/index-AAA.js"></script>'), { path: '/assets/index-AAA.js' });
+  assert.deepEqual(entryScript('<script src="./assets/x.js?v=1#h" type=\'module\'></script>'), { path: '/assets/x.js' });
+  assert.deepEqual(entryScript('<script type="module" src="https://cdn.example/app.js"></script>'), { external: true });
+  assert.deepEqual(entryScript('<script type="module" src="//cdn.example/app.js"></script>'), { external: true });
+  for (const none of ['', '<html></html>', '<script src="/a.js"></script>', '<script type="module">x()</script>', '<script type="module" src="/../x.js"></script>', '<script type="module" src="/a b.js"></script>']) {
+    assert.equal(entryScript(none), null, none);
+  }
+  assert.equal(looksLikeHtml(Buffer.from('  \n<!DOCTYPE html><html>')), true);
+  assert.equal(looksLikeHtml(Buffer.from('<html lang="en">')), true);
+  assert.equal(looksLikeHtml(Buffer.from('import"./v.js";const h="<html>";')), false);
+});
+
+const PAGE = '<!doctype html><script type="module" src="/assets/index-AAA.js"></script>';
+// A fake site: `routes` is { path: { status, type, body } }; supportsRange=false sends everything.
+async function fakeSite(routes, { supportsRange = true } = {}) {
+  const hits = [];
+  const server = http.createServer((req, res) => {
+    hits.push({ url: req.url, range: req.headers.range || null });
+    const r = routes[req.url];
+    if (!r) { res.writeHead(404); res.end('no'); return; }
+    let body = r.body;
+    let status = r.status ?? 200;
+    if (req.headers.range && supportsRange && status === 200) { body = body.slice(0, 256); status = 206; }
+    res.writeHead(status, r.type ? { 'content-type': r.type } : {});
+    res.end(body);
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  return { origin: 'http://127.0.0.1:' + server.address().port, hits, close: () => new Promise((resolve) => server.close(resolve)) };
+}
+const probe = async (routes, options) => {
+  const site = await fakeSite(routes, options);
+  try {
+    return { state: await probeFrontend({ get, origin: site.origin }), hits: site.hits };
+  } finally {
+    await site.close();
+  }
+};
+const HTML = 'text/html; charset=utf-8';
+const JS = 'text/javascript';
+
+test('a page whose script comes back as a script is served; only the first bytes are asked for', async () => {
+  const r = await probe({ '/': { type: HTML, body: PAGE }, '/assets/index-AAA.js': { type: JS, body: 'const a=1;'.repeat(100) } });
+  assert.equal(r.state, 'served');
+  assert.deepEqual(r.hits.map((h) => h.range), [null, 'bytes=0-255']);
+  assert.equal((await probe({ '/': { type: HTML, body: PAGE }, '/assets/index-AAA.js': { type: 'application/javascript', body: 'x=1' } })).state, 'served');
+});
+
+test('a script that comes back as the HTML page, or is missing, means no frontend is served (api-only)', async () => {
+  assert.equal((await probe({ '/': { type: HTML, body: PAGE }, '/assets/index-AAA.js': { type: HTML, body: PAGE } })).state, 'api-only');
+  assert.equal((await probe({ '/': { type: HTML, body: PAGE }, '/assets/index-AAA.js': { type: 'application/octet-stream', body: '  <!doctype html><html>' } })).state, 'api-only');
+  assert.equal((await probe({ '/': { type: HTML, body: PAGE }, '/assets/index-AAA.js': { type: JS, body: '<!doctype html><html>' } })).state, 'api-only'); // labelled as a script, but a page
+  assert.equal((await probe({ '/': { type: HTML, body: PAGE } })).state, 'api-only'); // the script answers 404
+  assert.equal((await probe({})).state, 'api-only'); // no page at all
+  assert.equal((await probe({ '/': { type: 'application/json', body: '{"ok":true}' } })).state, 'api-only');
+  assert.equal((await probe({ '/': { type: HTML, body: '<html><body>hello</body></html>' } })).state, 'api-only'); // a page with no script
+});
+
+test('when the answers do not say, nothing is claimed (unknown)', async () => {
+  assert.equal((await probe({ '/': { status: 500, type: HTML, body: 'x' } })).state, 'unknown');
+  assert.equal((await probe({ '/': { status: 302, type: HTML, body: 'x' } })).state, 'unknown');
+  assert.equal((await probe({ '/': { type: HTML, body: PAGE }, '/assets/index-AAA.js': { status: 500, type: JS, body: 'x' } })).state, 'unknown');
+  assert.equal((await probe({ '/': { type: HTML, body: '<script type="module" src="https://cdn.example/a.js"></script>' } })).state, 'unknown');
+  assert.equal(await probeFrontend({ get: async () => { throw new Error('down'); }, origin: 'https://x.example' }), 'unknown');
+});
+
+test('a big script from a server that ignores the range is still a script, not the small fallback page', async () => {
+  const r = await probe({ '/': { type: HTML, body: PAGE }, '/assets/index-AAA.js': { type: JS, body: 'a'.repeat(200000) } }, { supportsRange: false });
+  assert.equal(r.state, 'served');
+});
+
+test('collectNodes records which nodes serve a frontend, and leaves out the ones it cannot tell', async () => {
+  const a = await fakeSite({ '/': { type: HTML, body: PAGE }, '/assets/index-AAA.js': { type: JS, body: 'x=1' }, '/api/stats': { type: 'application/json', body: '{"totalUsers":5}' } });
+  const b = await fakeSite({ '/': { type: HTML, body: PAGE }, '/assets/index-AAA.js': { type: HTML, body: PAGE }, '/api/stats': { type: 'application/json', body: '{"totalUsers":7}' } });
+  const c = await fakeSite({ '/': { status: 500, type: HTML, body: 'x' } });
+  const seed = await startNode({ instances: [entry(a.origin), entry(b.origin), entry(c.origin)] });
+  try {
+    const r = await collectNodes({ seeds: [seed.origin], get, optout: new Set(), allowLocal: true });
+    assert.deepEqual(r.frontends, { [a.origin]: 'served', [b.origin]: 'api-only' });
+    const file = buildFile({ now: day('2026-11-14'), entry: buildEntry({ now: day('2026-11-14'), nodes: r, chain }), previous: null, frontends: r.frontends });
+    assert.deepEqual(file.frontends, r.frontends);
+    assert.deepEqual(buildFile({ now: day('2026-11-14'), entry: buildEntry({ now: day('2026-11-14'), nodes: r, chain }), previous: null }).frontends, {});
+  } finally {
+    await Promise.all([a, b, c, seed].map((n) => n.close()));
+  }
+});
+
+test('an opted-out node is not asked for its page either', async () => {
+  const quiet = await fakeSite({ '/': { type: HTML, body: PAGE } });
+  const seed = await startNode({ instances: [entry(quiet.origin)] });
+  try {
+    const r = await collectNodes({ seeds: [seed.origin], get, optout: new Set(['127.0.0.1']), allowLocal: true });
+    assert.equal(r.asked, 0);
+    assert.deepEqual(quiet.hits, []);
+  } finally {
+    await Promise.all([quiet, seed].map((n) => n.close()));
+  }
 });

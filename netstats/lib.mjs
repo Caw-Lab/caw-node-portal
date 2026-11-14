@@ -23,7 +23,7 @@ export const CHAIN = {
   },
 };
 
-export const LIMITS = { maxNodes: 40, instancesBytes: 512 * 1024, statsBytes: 16 * 1024, historyDays: 400, concurrency: 4 };
+export const LIMITS = { maxNodes: 40, instancesBytes: 512 * 1024, statsBytes: 16 * 1024, pageBytes: 1024 * 1024, scriptBytes: 64 * 1024, historyDays: 400, concurrency: 4 };
 const MAX_COUNT = 1e12;
 
 function isCount(value) {
@@ -72,6 +72,62 @@ export function nodesFromRegistry(text, { allowLocal = false, optout = new Set()
   return { origins: [...origins].sort().slice(0, maxNodes), refused };
 }
 
+// ---------------------------------------------------------------- does the address serve a frontend?
+// The registry lists a node's API address, which may serve no frontend at all (the page answers, but the script it
+// names comes back as an HTML page, or there is no page). A visitor then sees an empty screen. This is read here,
+// by the scheduled run, because a browser cannot read another site's files.
+const MODULE_SCRIPT = [
+  /<script\b[^>]*\btype\s*=\s*["']module["'][^>]*\bsrc\s*=\s*["']([^"']{1,300})["']/i,
+  /<script\b[^>]*\bsrc\s*=\s*["']([^"']{1,300})["'][^>]*\btype\s*=\s*["']module["']/i,
+];
+
+// { path } for a script of this site, { external: true } for one of another site, or null when the page names none.
+export function entryScript(html) {
+  for (const pattern of MODULE_SCRIPT) {
+    const found = pattern.exec(html);
+    if (!found) continue;
+    const src = found[1].trim();
+    if (src.includes('://') || src.startsWith('//')) return { external: true };
+    const segments = src.split('?')[0].split('#')[0].split('/').filter((part) => part !== '' && part !== '.');
+    if (!segments.length || segments.includes('..') || /[\s\\]/.test(src)) return null;
+    return { path: '/' + segments.join('/') };
+  }
+  return null;
+}
+
+export function looksLikeHtml(bytes) {
+  const head = Buffer.from(bytes.subarray(0, 64)).toString('utf8').replace(/^\uFEFF/, '').trimStart().toLowerCase();
+  return head.startsWith('<!doctype html') || head.startsWith('<html');
+}
+
+// 'served' (a script comes back as a script), 'api-only' (no page, or a page whose script comes back as HTML), or
+// 'unknown' (the answers do not say: errors, redirects, a script of another site). Only the first bytes are asked for.
+export async function probeFrontend({ get, origin }) {
+  let root;
+  try {
+    root = await get(origin + '/', { maxBytes: LIMITS.pageBytes });
+  } catch {
+    return 'unknown';
+  }
+  if (root.status === 404) return 'api-only';
+  if (root.status !== 200) return 'unknown';
+  const entry = root.contentType.includes('html') ? entryScript(Buffer.from(root.bytes).toString('utf8')) : null;
+  if (entry === null) return 'api-only';
+  if (entry.external) return 'unknown';
+  let script;
+  try {
+    script = await get(origin + entry.path, { maxBytes: LIMITS.scriptBytes, range: 'bytes=0-255' });
+  } catch (error) {
+    // a large answer to a request that ignored the range is a real script, not the small page a site falls back to
+    return /too large/.test(String(error && error.message)) ? 'served' : 'unknown';
+  }
+  if (script.status === 404) return 'api-only';
+  if (script.status !== 200 && script.status !== 206) return 'unknown';
+  if (/javascript|ecmascript/.test(script.contentType) && !looksLikeHtml(script.bytes)) return 'served';
+  if (script.contentType.includes('html') || looksLikeHtml(script.bytes)) return 'api-only';
+  return 'served';
+}
+
 export function aggregate(answers) {
   const best = { users: null, posts: null, postsToday: null, activeWeek: null };
   for (const answer of answers) {
@@ -109,7 +165,7 @@ export async function collectNodes({ seeds, get, optout, allowLocal = false, max
       /* try the next seed */
     }
   }
-  if (!registry) return { asked: 0, answered: 0, refused: 0, numbers: aggregate([]) };
+  if (!registry) return { asked: 0, answered: 0, refused: 0, numbers: aggregate([]), frontends: {} };
   const answers = await mapLimit(registry.origins, LIMITS.concurrency, async (origin) => {
     try {
       const response = await get(origin + '/api/stats', { maxBytes: LIMITS.statsBytes });
@@ -120,7 +176,12 @@ export async function collectNodes({ seeds, get, optout, allowLocal = false, max
     }
   });
   const good = answers.filter(Boolean);
-  return { asked: registry.origins.length, answered: good.length, refused: registry.refused, numbers: aggregate(good) };
+  const states = await mapLimit(registry.origins, LIMITS.concurrency, (origin) => probeFrontend({ get, origin }));
+  const frontends = {};
+  registry.origins.forEach((origin, index) => {
+    if (states[index] !== 'unknown') frontends[origin] = states[index];
+  });
+  return { asked: registry.origins.length, answered: good.length, refused: registry.refused, numbers: aggregate(good), frontends };
 }
 
 // One eth_call. Returns a BigInt, or null on any failure (the numbers are optional).
@@ -188,13 +249,14 @@ export function buildEntry({ now, nodes, chain }) {
   };
 }
 
-export function buildFile({ now, entry, previous }) {
+export function buildFile({ now, entry, previous, frontends }) {
   return {
     schemaVersion: 1,
     kind: 'caw-network-stats',
     generatedAt: new Date(now).toISOString(),
-    note: 'Testnet. users, posts and activeWeek are the largest value among the nodes that answered (what the nodes report); actions and depositedWei are read from the chains.',
+    note: 'Testnet. users, posts and activeWeek are the largest value among the nodes that answered (what the nodes report); actions and depositedWei are read from the chains. frontends: for the nodes whose address answers with a page and a script (served) or does not (api-only), as seen by this run.',
     latest: pick(entry),
+    frontends: frontends || {},
     history: mergeHistory(previous, entry),
   };
 }

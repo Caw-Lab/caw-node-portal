@@ -64,3 +64,12 @@ test('a line is drawn only when there are two values or more; gaps are skipped, 
   assert.equal(NET.series([entry({ depositedWei: '2000' })], 'depositedWei')[0], 2000);
   assert.equal(NET.series([entry({ depositedWei: null })], 'depositedWei')[0], null);
 });
+
+test('the frontend states are kept only as "served" or "api-only", for plain https host names', () => {
+  const r = NET.parse(file({ frontends: { 'https://a.example': 'served', 'https://b.example': 'api-only', 'https://c.example': 'unknown', 'http://d.example': 'served', 'https://e.example:8443': 'served', 'https://f.example/x': 'served', 'javascript:alert(1)': 'served', __proto__: 'served', 'https://g.example': 5 } }));
+  assert.deepEqual(plain(r.frontends), { 'https://a.example': 'served', 'https://b.example': 'api-only' });
+  for (const bad of [undefined, null, 'x', 5, [], ['https://a.example']]) assert.deepEqual(plain(NET.parse(file({ frontends: bad })).frontends), {}, String(bad));
+  assert.equal(Object.keys(NET.parse(file({ frontends: Object.fromEntries(Array.from({ length: 300 }, (_, i) => [`https://n${i}.example`, 'served'])) })).frontends).length, 200);
+  assert.equal(NET.parse(file()).frontends['https://a.example'], undefined);
+});
+

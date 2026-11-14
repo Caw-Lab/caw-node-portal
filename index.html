@@ -16,6 +16,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-app
 a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
 .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
 button{font:inherit}
+[hidden]{display:none!important}
 /* header */
 .top{padding:28px 0 8px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .brand h1{margin:0;font:600 28px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.01em}
@@ -105,6 +106,7 @@ a.name:hover{color:var(--link)}
 .fcsec{margin-top:18px}.fcsec[hidden]{display:none}.fcsec h3{margin:0 0 4px;font-size:16px}.sub{color:var(--mute);margin:0 0 8px;font-size:13.5px}
 .help{margin:14px 4px 0;display:grid;gap:6px;color:var(--faint);font-size:13px}
 .help b{color:var(--mute);font-weight:600}
+.help [hidden]{display:none}
 footer{margin:34px 0 40px;color:var(--faint);font-size:13px;display:flex;gap:6px 16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:820px){
@@ -166,6 +168,7 @@ footer{margin:34px 0 40px;color:var(--faint);font-size:13px;display:flex;gap:6px
 <span><b data-i18n="check"></b> <b data-i18n="help_check_b"></b> <span data-i18n="help_check"></span></span>
 <span><b data-i18n="b_fcwatch"></b> <span data-i18n="help_watch"></span> <span id="help_updated"></span></span>
 <span><b data-i18n="col_speed"></b> <span data-i18n="help_speed"></span></span>
+<span id="help_apionly_row" hidden><b data-i18n="b_apionly"></b> <span data-i18n="help_apionly"></span></span>
 <span data-i18n="help_sort"></span>
 </div>
 </section>
@@ -275,7 +278,10 @@ ja:{
   t_fcwatch:"検証したファイルは、すべて、ノード自身のファイル一覧と一致しました(index.html、読み込まれるスクリプト、鍵や署名に関わる名前のファイル、ランダムに選んだ 20 件)。ファイル一覧そのものが公式のものかは、確かめていません。ノードが安全であることを示すものではありません。",
   auto:"5秒ごとに自動更新(タブが裏のときは停止)",
   waiting:"ライブ取得を待っています(いまは 2026-10-25 のスナップショット)",
-  tt_snapshot:"一覧は、各ノードの /api/instances を、このブラウザが取得して集計します。"
+  tt_snapshot:"一覧は、各ノードの /api/instances を、このブラウザが取得して集計します。",
+  b_apionly:"API専用",
+  t_apionly:"このアドレスは、画面のプログラムを配っていないように見えます(トップページが開いても、画面が組み立てられません)。API 専用のノードの可能性があります。1 日 1 回、サーバー側から確認した結果です。",
+  help_apionly:"そのアドレスは、画面のプログラムを配っていないように見えます。サイトを開いても、画面が表示されない可能性があります。1 日 1 回の確認結果で、ノードに問題がある、という意味ではありません。一覧の最後に並べます。"
 },
 en:{
   fc_note:"Every hour, a GitHub server downloads some of the files a node serves and compares them with that node’s own file list (build-manifest.json). This is monitoring, to notice accidents, damage and mismatched deployments. It does not show that a node can be trusted, or that it serves the official code (the GitHub master). If a node changed both the files and its file list, this does not find it.",
@@ -376,7 +382,10 @@ en:{
   t_fcwatch:"All checked files match the node’s own file list (index.html, the scripts it loads, files named after keys or signing, and 20 chosen at random). Whether the file list itself is the official one was not checked. It does not show that the node is safe.",
   auto:"Updates every 5 s (paused while the tab is hidden)",
   waiting:"Waiting for the live lists (showing the 2026-10-25 snapshot for now)",
-  tt_snapshot:"The list is built by this browser from each node’s /api/instances."
+  tt_snapshot:"The list is built by this browser from each node’s /api/instances.",
+  b_apionly:"API only",
+  t_apionly:"This address does not seem to serve a frontend (the top page may open, but the screen cannot be built). It may be an API-only node. Checked once a day from the server side.",
+  help_apionly:"That address does not seem to serve a frontend, so opening the site may show an empty screen. It is the result of a daily check and does not mean the node has a problem. These nodes are listed last."
 }
 };
 let lang='en';
@@ -418,6 +427,7 @@ function renderBadges(r){
   if(r.hand){if(r.compl==='partial')badge(r.badges,'warn','b_partial');else if(r.compl==='empty')badge(r.badges,'warn','b_empty')}
   else if(r.url===null){badge(r.badges,'bad','b_badurl')}
   else{
+    if(r.apiOnly)badge(r.badges,'','b_apionly');
     if(!r.n.own)badge(r.badges,'','b_other');
     if(!r.n.activeAny)badge(r.badges,'bad','b_inact');
     if(r.compl==='partial')badge(r.badges,'warn','b_partial');else if(r.compl==='empty')badge(r.badges,'warn','b_empty');
@@ -544,8 +554,18 @@ async function loadNet(){
     if(!res.ok)return;
     const parsed=NET.parse(await res.json());
     if(!parsed)return;
-    net=parsed;renderNet();
+    net=parsed;applyFrontends();renderNet();
   }catch(e){/* no file yet: the page works without it */}
+}
+// A node whose address serves no frontend (only an API) is marked, has no "integrity check" button (it could only say "cannot be read"), and is listed last.
+function applyFrontends(){
+  for(const r of rows){
+    r.apiOnly=!!(r.url&&net&&net.frontends[r.url]==='api-only');
+    if(r.checkBtn)r.checkBtn.hidden=r.apiOnly;
+    renderRow(r);
+  }
+  document.getElementById('help_apionly_row').hidden=!rows.some(r=>r.apiOnly);
+  sortCards();
 }
 function spark(tile,key){
   const host=tile.querySelector('.hint');if(!host)return;
@@ -594,14 +614,14 @@ function build(n){
   const sp=document.createElement('div');sp.className='speed';
   const ms=document.createElement('div');ms.className='ms';const t=document.createElement('span');t.textContent='—';const av=document.createElement('small');ms.append(t,av);
   const bar=document.createElement('div');bar.className='bar';const fill=document.createElement('i');bar.appendChild(fill);sp.append(ms,bar);li.appendChild(sp);
-  const acts=document.createElement('div');acts.className='acts';
+  const acts=document.createElement('div');acts.className='acts';let checkBtn=null;
   if(url){
     const host=new URL(url).hostname;
-    const c=document.createElement('a');c.className='btn';c.href=VERIFY_URL+'?site='+encodeURIComponent(host);c.target='_blank';c.rel='noopener noreferrer';c.dataset.i18n='check';c.dataset.i18nTitle='check_tip';c.textContent=I[lang].check;c.title=I[lang].check_tip;acts.appendChild(c);
+    const c=document.createElement('a');c.className='btn';c.href=VERIFY_URL+'?site='+encodeURIComponent(host);c.target='_blank';c.rel='noopener noreferrer';c.dataset.i18n='check';c.dataset.i18nTitle='check_tip';c.textContent=I[lang].check;c.title=I[lang].check_tip;acts.appendChild(c);checkBtn=c;
     const o=document.createElement('a');o.className='btn primary';o.href=url;o.target='_blank';o.rel='noopener noreferrer';o.dataset.i18n='open';o.dataset.i18nTitle='open_tip';o.textContent=I[lang].open;o.title=I[lang].open_tip;acts.appendChild(o);
   }
   li.appendChild(acts);
-  const row={n,url,t,fill,av,m,badges:bx,intro,dot,speed:sp,card:li,hist:[],state:null};rows.push(row);if(url)byUrl.set(url,row);renderRow(row);return li;
+  const row={n,url,t,fill,av,m,badges:bx,intro,dot,speed:sp,card:li,checkBtn,apiOnly:!!(url&&net&&net.frontends[url]==='api-only'),hist:[],state:null};if(row.checkBtn)row.checkBtn.hidden=row.apiOnly;rows.push(row);if(url)byUrl.set(url,row);renderRow(row);return li;
 }
 for(const n of NODES){document.getElementById(n.group).appendChild(build(n))}
 loadFc();loadNet();
@@ -669,6 +689,7 @@ function rank(r){return r.state==='ok'?((r.compl==='partial'||r.compl==='empty')
 const view={f:'all',o:'default'};
 try{const v=JSON.parse(localStorage.getItem('view')||'{}');if(v.f==='up')view.f='up';if(v.o==='fast'||v.o==='listed')view.o=v.o}catch(e){}
 function cmp(a,b){
+  const ao=(a.apiOnly?1:0)-(b.apiOnly?1:0);if(ao)return ao;
   const nm=String(a.n.apiUrl).localeCompare(String(b.n.apiUrl));
   if(view.o==='fast'){const k=r=>r.state==='ok'?Math.round((r.avg||r.ms)/100):1e9;return k(a)-k(b)||nm}
   if(view.o==='listed'){const k=r=>r.state==='ok'?-(r.n.seen||0):1;return k(a)-k(b)||rank(a)-rank(b)||nm}
@@ -717,7 +738,7 @@ function updateFromViews(){
     }else hidden++;
   }
   for(const [u,r] of byUrl)if(!present.has(u)){r.n.seen=0;r.n.N=ag.N;renderRow(r)}
-  rows.forEach(renderRow);sortCards();renderFcSection();
+  rows.forEach(renderRow);sortCards();renderFcSection();document.getElementById('help_apionly_row').hidden=!rows.some(r=>r.apiOnly);
   live={N:ag.N,incomplete:ag.incomplete,time:new Date(),bad,hidden};renderLive();renderRegNote();
 }
 let busy=false;

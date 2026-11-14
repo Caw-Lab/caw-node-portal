@@ -80,12 +80,12 @@ async function main() {
     collectChain(),
   ]);
   const entry = buildEntry({ now, nodes, chain });
-  console.log(`netstats: asked ${nodes.asked} nodes, ${nodes.answered} answered, ${nodes.refused} addresses refused; chain: actions ${chain.actions}, deposits ${chain.depositedWei === null ? 'none' : 'read'}`);
+  console.log(`netstats: asked ${nodes.asked} nodes, ${nodes.answered} answered, ${nodes.refused} addresses refused; chain: actions ${chain.actions}, deposits ${chain.depositedWei === null ? 'none' : 'read'}; frontends: ${Object.values(nodes.frontends).filter((v) => v === 'served').length} served, ${Object.values(nodes.frontends).filter((v) => v === 'api-only').length} api-only`);
   if (!hasData(entry)) {
     console.error('netstats: nothing could be read; nothing is written');
     return 2;
   }
-  const file = buildFile({ now, entry, previous: readPrevious(options.previous) });
+  const file = buildFile({ now, entry, previous: readPrevious(options.previous), frontends: nodes.frontends });
   writeFileSync(options.out + '.tmp', JSON.stringify(file, null, 1) + '\n');
   renameSync(options.out + '.tmp', options.out);
   console.log(`netstats: wrote ${options.out} (${file.history.length} days in the history)`);
