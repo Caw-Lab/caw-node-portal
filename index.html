@@ -142,7 +142,7 @@ function setLang(l){lang=l;try{localStorage.setItem('lang',l)}catch(e){}applyLan
 for(const b of document.querySelectorAll('.lang button'))b.onclick=()=>setLang(b.dataset.lang);
 function color(ms){return ms<400?'var(--ok)':ms<1200?'var(--warn)':'var(--bad)'}
 // ---- file consistency (spotcheck): status.json is written by a scheduled GitHub run (see spotcheck/) ----
-const FC_URL='https://raw.githubusercontent.com/Zinsanjp/caw-node-portal/data/status.json';
+const FC_URL='https://raw.githubusercontent.com/Caw-Lab/caw-node-portal/data/status.json';
 let fc=null;const fcOpen=new Set();
 const FC_IDX={exact:'fc_idx_exact','after-undoing-address':'fc_idx_after',different:'fc_idx_diff',unlisted:'fc_idx_unl'};
 function fcEl(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}

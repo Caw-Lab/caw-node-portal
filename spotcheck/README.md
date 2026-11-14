@@ -72,6 +72,9 @@ The list of nodes comes from the network, so each address is treated as untruste
 
 MIT, see `LICENSE`.
 
-## Paused
+## Schedule
 
-The hourly run is paused (2026-11-13) while the portal moves to another owner; the workflow can still be started by hand. The page works without a status file: the check section stays hidden until one exists. To start the schedule again, restore the `schedule` entry in `.github/workflows/spotcheck.yml` and update the repository address in `spotcheck/net.js` (the `USER_AGENT`) and in `index.html` (`FC_URL`).
+The workflow runs every hour at minute 17 and can also be started by hand (Actions tab, "spotcheck", "Run workflow"). It was paused on 2026-11-13 while the portal moved to Caw-Lab, and was started again on 2026-11-14. The page works without a status file: the check section stays hidden until one exists.
+
+- A scheduled run can start late or be skipped. GitHub may also switch off the schedule of a repository that has had no activity for a long time; then it has to be switched on again in the Actions tab.
+- To pause it, remove the `schedule` entry in `.github/workflows/spotcheck.yml`.

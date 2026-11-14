@@ -12,7 +12,7 @@ import https from 'node:https';
 import net from 'node:net';
 import zlib from 'node:zlib';
 
-export const USER_AGENT = 'caw-node-portal-spotcheck/0.1 (+https://github.com/Zinsanjp/caw-node-portal)';
+export const USER_AGENT = 'caw-node-portal-spotcheck/0.1 (+https://github.com/Caw-Lab/caw-node-portal)';
 
 function ipv4Parts(address) {
   const parts = address.split('.').map(Number);
