@@ -1,77 +1,389 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CAW Node Portal (mock)</title>
-<meta name="description" content="An unofficial mock that lists CAW nodes and measures, from your browser, how fast each one answers.">
-<meta name="theme-color" content="#000000">
+<title>CAW Node Portal</title>
+<meta name="description" content="An unofficial portal that lists CAW nodes and measures, from your browser, how fast each one answers.">
+<meta name="theme-color" content="#0f1014">
 <meta property="og:type" content="website">
-<meta property="og:title" content="CAW Node Portal (mock)">
-<meta property="og:description" content="An unofficial mock that lists CAW nodes and measures, from your browser, how fast each one answers.">
+<meta property="og:title" content="CAW Node Portal">
+<meta property="og:description" content="An unofficial portal that lists CAW nodes and measures, from your browser, how fast each one answers.">
 <meta name="twitter:card" content="summary">
 <style>
-:root{--bg:#000;--bg2:#0a0a0a;--card:#171717;--card2:#222;--fg:#fff;--mute:#919aae;--line:rgba(255,255,255,.12);--pri:#f7b72b;--acc:#00f0ff;--ok:#aceb3f;--warn:#f7e545;--bad:#de71a4;--navy:#161628}
-@media (prefers-color-scheme:light){:root{--bg:#fff;--bg2:#fff;--card:#f6f6f7;--card2:#eceef1;--fg:#111;--mute:#5d6678;--line:#d6d9e0;--pri:#c98a00;--acc:#0a6fa8;--ok:#3f8f00;--warn:#9a7a00;--bad:#c2417c}}
+:root{--bg:#0f1014;--surface:#171920;--surface2:#1e2129;--line:#2a2e38;--fg:#eceef3;--mute:#9aa1b2;--faint:#6b7283;--accent:#f2b134;--accent-ink:#1a1405;--link:#7cc8ff;--ok:#5fd08a;--warn:#f0c14b;--bad:#ef6f8f;--spark:#7cc8ff;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 8px 24px rgba(0,0,0,.25)}
+@media (prefers-color-scheme:light){:root{--bg:#f6f7f9;--surface:#fff;--surface2:#f0f2f5;--line:#dde1e8;--fg:#161922;--mute:#566074;--faint:#7a8497;--accent:#b97800;--accent-ink:#fff;--link:#0b6aa8;--ok:#1f8f4e;--warn:#9a7300;--bad:#c23a63;--spark:#0b6aa8;--shadow:0 1px 2px rgba(20,30,50,.06),0 6px 18px rgba(20,30,50,.06)}}
 *{box-sizing:border-box}
-body{margin:0;color:var(--fg);background:var(--bg);background-image:radial-gradient(ellipse 70% 32% at 50% -8%,color-mix(in srgb,var(--pri) 16%,transparent),transparent),linear-gradient(to right,var(--bg) 0%,var(--bg2) 15%,var(--bg2) 85%,var(--bg) 100%);background-attachment:fixed;font:15px/1.55 Inter,system-ui,"Noto Sans JP",sans-serif}
-main{max-width:880px;margin:0 auto;padding:16px 16px 32px}
-header{display:flex;align-items:center;gap:14px;margin-bottom:6px}
-header img{width:52px;height:52px;border-radius:50%}
-h1{font:600 32px/1.15 Fraunces,Georgia,serif;letter-spacing:.01em;margin:0;background:linear-gradient(90deg,var(--pri),var(--fg) 70%);-webkit-background-clip:text;background-clip:text;color:transparent}
-h2{font:600 18px/1.2 Fraunces,Georgia,serif;margin:22px 0 6px;display:flex;align-items:center;gap:8px}
-h2::before{content:"";width:4px;height:18px;border-radius:2px;background:linear-gradient(var(--pri),var(--acc))}
-.sub{color:var(--mute);margin:0 0 8px}
-.banner{border:1px solid color-mix(in srgb,var(--pri) 40%,transparent);background:color-mix(in srgb,var(--pri) 8%,transparent);color:var(--pri);border-radius:12px;padding:8px 12px;margin:8px 0;font-size:12.5px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 14px;margin:6px 0;display:grid;grid-template-columns:1fr auto;gap:4px 14px;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:background .2s,border-color .2s,transform .2s,box-shadow .2s}
-.card:hover{background:var(--card2);border-color:color-mix(in srgb,var(--pri) 55%,var(--line));transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.28)}
-.name{font-weight:600;overflow-wrap:anywhere}.meta{color:var(--mute);font-size:12.5px}
-.lat{font-variant-numeric:tabular-nums;text-align:right;font-weight:700;min-width:130px}.lat .sub2{display:block;font-weight:400;font-size:11.5px;color:var(--mute)}
-.bar{height:6px;border-radius:99px;background:var(--card2);margin-top:2px;overflow:hidden}.card:hover .bar{background:var(--bg)}
-.bar i{display:block;height:100%;width:0;background:var(--mute);border-radius:99px;transition:width .5s,background .5s}
-.comment{grid-column:1/-1;font-size:13.5px;border-top:1px solid var(--line);padding-top:8px;margin-top:6px}
-.comment.empty{color:var(--mute);font-style:italic}
-.tag{display:inline-block;font-size:11px;border:1px solid var(--line);border-radius:99px;padding:0 8px;margin-left:6px;color:var(--mute)}
-.fixed{border-color:var(--pri);box-shadow:0 0 0 1px color-mix(in srgb,var(--pri) 25%,transparent),0 6px 22px color-mix(in srgb,var(--pri) 14%,transparent)}.fixed .tag{border-color:var(--pri);color:var(--pri)}
-a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
-button{font:inherit;font-weight:600;border:0;background:linear-gradient(135deg,var(--pri),color-mix(in srgb,var(--pri) 65%,#fff));color:var(--navy);border-radius:99px;padding:6px 18px;cursor:pointer;box-shadow:0 2px 12px color-mix(in srgb,var(--pri) 30%,transparent);transition:filter .2s,box-shadow .2s}
-button:hover{filter:brightness(1.1)}
-.lang{margin-left:auto;display:flex;gap:4px}.lang button,.seg button{padding:3px 12px;box-shadow:none;background:transparent;color:var(--mute);border:1px solid var(--line);font-size:12.5px}.lang button.on,.seg button.on{background:var(--pri);color:var(--navy);border-color:var(--pri)}
-.badges{margin-top:5px;display:flex;flex-wrap:wrap;gap:5px}.badge{font-size:11.5px;border:1px solid var(--line);border-radius:99px;padding:0 9px;color:var(--mute);white-space:nowrap}.badge{cursor:help}.badge::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mute);margin-right:6px}.badge.ok{color:var(--ok);border-color:var(--ok)}.badge.ok::before{background:var(--ok)}.badge.bad{color:var(--bad);border-color:var(--bad)}.badge.bad::before{background:var(--bad)}.badge.warn{color:var(--warn);border-color:var(--warn)}.badge.warn::before{background:var(--warn)}.badge.hand{color:var(--pri);border-color:var(--pri)}.badge.hand::before{background:var(--pri)}
-.tip{font-size:12.5px;color:var(--mute);margin-top:6px;border-left:3px solid var(--pri);padding-left:8px}
-.go{grid-column:2;justify-self:end;font-size:13.5px}
-.card[hidden]{display:none}
-.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
-.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:5px 12px;display:flex;flex-direction:column;gap:0;box-shadow:0 2px 8px rgba(0,0,0,.14)}
-.tile[hidden]{display:none}.spark{display:block;width:100%;height:20px;margin-top:3px}.spark polyline{fill:none;stroke:var(--acc);stroke-width:1.5;vector-effect:non-scaling-stroke}details.more{margin:6px 0}details.more summary{cursor:pointer;color:var(--mute);font-size:12.5px}
-.tile b{font:600 17px/1.2 Fraunces,Georgia,serif;font-variant-numeric:tabular-nums}.tile span{color:var(--mute);font-size:11px}
-.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:8px 0}.seg{display:flex;flex-wrap:wrap;gap:4px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}.card:hover{transform:none}}
-@media (max-width:560px){.tile{padding:4px 8px}.tile b{font-size:15px}.card{grid-template-columns:1fr}.lat{text-align:left;min-width:0}.go{grid-column:1;justify-self:start}}
-.fcbtn{font-size:11.5px;padding:0 10px;box-shadow:none;background:transparent;color:var(--acc);border:1px solid var(--line);font-weight:600;cursor:pointer}.fcbtn:hover{filter:none;border-color:var(--acc)}.fcpanel{grid-column:1/-1;border-top:1px solid var(--line);margin-top:6px;padding-top:8px;font-size:13px}.fcline{display:flex;flex-wrap:wrap;gap:2px 10px;margin:2px 0}.fck{color:var(--mute);min-width:9.5em}.fcv{overflow-wrap:anywhere}.fcul{margin:0;padding-left:18px}.fcnote{color:var(--mute);font-size:12px;margin-top:6px}
-</style></head><body><main>
-<header><div><h1>CAW Node Portal</h1>
-<p class="sub" style="margin:0" data-i18n="sub">ノードを選んで参加する入口(仮の案)</p></div><div class="lang"><button type="button" data-lang="ja">JP</button><button type="button" data-lang="en">EN</button></div></header>
-<div class="banner" data-i18n="mock">モック表示です。一覧は 2026-10-25 に cawnest.com の /api/instances から取得した実データ(重複除去済み)。コメントは仮文です。レイテンシは、このブラウザから各ノードへの往復時間です。</div>
-<button id="re" data-i18n="measure">今すぐ測定</button> <div class="meta" id="liveinfo" style="margin:6px 0"></div><span class="meta" data-i18n="auto">5秒ごとに自動更新(タブが裏のときは停止)</span>
-<div class="sum"><div class="tile"><b id="s_up_v">—</b><span data-i18n="s_up">応答あり</span></div><div class="tile" id="t_users" hidden><b id="v_users"></b><span data-i18n="n_users"></span></div><div class="tile" id="t_posts" hidden><b id="v_posts"></b><span data-i18n="n_posts"></span></div><div class="tile" id="t_activeWeek" hidden><b id="v_activeWeek"></b><span data-i18n="n_week"></span></div><div class="tile" id="t_actions" hidden><b id="v_actions"></b><span data-i18n="n_actions"></span></div><div class="tile" id="t_depositedWei" hidden><b id="v_depositedWei"></b><span data-i18n="n_dep"></span></div></div>
-<div class="meta" id="netinfo" hidden></div>
-<details class="more"><summary data-i18n="more">詳細(運営者向け)</summary><div class="sum"><div class="tile"><b id="s_med_v">—</b><span data-i18n="s_med">往復時間の中央値</span></div><div class="tile"><b id="s_n_v">—</b><span data-i18n="s_n">一覧を返したノード</span></div></div></details>
-<h2 data-i18n="h_main">本流</h2>
-<div class="card fixed" id="gil"><div><a class="name" href="https://test2.caw.social" target="_blank" rel="noopener noreferrer">https://test2.caw.social</a><span class="tag" data-i18n="fixed">固定</span><span class="tag">Gilgamesh</span><div class="meta" data-i18n="main_meta">本流のノード(レジストリには未登録)</div><div class="badges"></div></div><div class="lat"><span>—</span><span class="sub2"></span><div class="bar"><i></i></div></div><div class="comment empty" data-i18n="nocomment">(コメントはまだありません)</div><a class="go" href="https://test2.caw.social" target="_blank" rel="noopener noreferrer" data-i18n="open">このノードを開く</a></div>
-<div id="fcsec" hidden><h2 data-i18n="h_fc"></h2><p class="sub" data-i18n="fc_note"></p><div class="meta" id="fcgen"></div><div id="fccards"></div></div>
-<h2 data-i18n="h_reg">レジストリに登録されたノード</h2><div class="banner" data-i18n="caution">注意: ここに並ぶのは、レジストリへの自己申告です。誰でも登録でき、正規のノードかどうかは確認していません。開く前に、運営者を確かめてください。</div><div class="meta" data-i18n="verify_note"></div><div class="ctl"><span class="meta" data-i18n="f_label">表示</span><div class="seg"><button type="button" data-k="f" data-v="all" data-i18n="f_all">すべて</button><button type="button" data-k="f" data-v="up" data-i18n="f_up">応答ありのみ</button></div><span class="meta" data-i18n="o_label">並べ替え</span><div class="seg"><button type="button" data-k="o" data-v="default" data-i18n="o_def">標準(アルファベット順)</button><button type="button" data-k="o" data-v="fast" data-i18n="o_fast">速い順</button><button type="button" data-k="o" data-v="listed" data-i18n="o_listed">掲載数の順</button></div></div><div id="normal"></div>
-</main>
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Hiragino Sans","Noto Sans JP","Yu Gothic UI",sans-serif}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+button{font:inherit}
+/* header */
+.top{padding:28px 0 8px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.brand h1{margin:0;font:600 28px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.01em}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:4px 0 0;color:var(--mute);font-size:15px}
+.tools{display:flex;gap:8px;align-items:center}
+.pill{font-size:12px;border:1px solid var(--line);color:var(--mute);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pill.beta{border-color:color-mix(in srgb,var(--accent) 55%,transparent);color:var(--accent);cursor:help}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.seg button{all:unset;cursor:pointer;padding:4px 12px;font-size:13px;color:var(--mute);box-sizing:border-box}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.seg button:focus-visible,.btn:focus-visible,select:focus-visible,.ghost:focus-visible,.badge:focus-visible,.fcbtn:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+/* summary */
+.summary{margin:18px 0 30px}
+.sum-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.sum-head h2,.list-head h2{margin:0;font-size:19px;font-weight:650}
+.asof{color:var(--faint);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px 12px;box-shadow:var(--shadow);min-width:0}
+.stat[hidden]{display:none}
+.stat .label{color:var(--mute);font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.cum{font-size:11px;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:0 6px;line-height:1.5}
+.stat .value{font-size:30px;line-height:1.15;font-weight:650;font-variant-numeric:tabular-nums;margin:2px 0 8px;letter-spacing:-.01em}
+.stat .value small{font-size:14px;font-weight:500;color:var(--mute);margin-left:4px}
+.stat .hint{min-height:24px;display:flex;align-items:center}
+.meter{height:8px;border-radius:999px;background:var(--line);overflow:hidden;width:100%}
+.meter i{display:block;height:100%;width:0;border-radius:999px;background:var(--ok);transition:width .5s}
+.meter.part i{background:var(--warn)}.meter.none i{background:var(--bad)}
+.spark{width:100%;height:24px;display:block}
+.spark polyline{fill:none;stroke:var(--spark);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.more-line{display:flex;gap:10px 26px;flex-wrap:wrap;margin:14px 4px 0;color:var(--mute);font-size:14px}
+.more-line[hidden],.more-line>span[hidden]{display:none}
+.more-line b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+details.about{margin:10px 4px 0;color:var(--mute);font-size:13.5px}
+details.about[hidden]{display:none}
+details.about summary{cursor:pointer;color:var(--faint);list-style:none}
+details.about summary::before{content:"ⓘ "}
+details.about p{margin:8px 0 0;max-width:72ch}
+/* nodes */
+.list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+select{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font:inherit;font-size:13.5px}
+.ghost{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:5px 12px;font-size:13px;color:var(--mute)}
+.ghost:hover{border-color:var(--accent);color:var(--fg)}
+.note{color:var(--mute);font-size:14px;margin:2px 0 8px}
+.note.ok{color:var(--faint);font-size:13px;margin:0 0 10px}
+.note[hidden]{display:none}
+.cols{display:grid;grid-template-columns:18px 1fr 150px 250px;gap:14px;padding:0 16px 6px;color:var(--faint);font-size:12.5px}
+.rows{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.row{display:grid;grid-template-columns:18px 1fr 150px 250px;align-items:center;gap:6px 14px;padding:14px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row[hidden]{display:none}
+.row.simple{grid-template-columns:1fr}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--ok);justify-self:center;align-self:start;margin-top:8px}
+.dot.down{background:var(--bad)}.dot.wait{background:var(--faint)}
+.who{min-width:0}
+.name{font-weight:650;font-size:16px;overflow-wrap:anywhere;color:var(--fg)}
+a.name:hover{color:var(--link)}
+.intro{margin:2px 0 0;color:var(--fg);opacity:.86;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.intro.empty{color:var(--faint);font-style:italic;opacity:1}
+.meta{margin-top:4px;color:var(--faint);font-size:12.5px;display:flex;gap:6px 8px;flex-wrap:wrap;align-items:center}
+.meta:empty{display:none}
+.tags{display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tags:empty{display:none}
+.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 8px;color:var(--mute);font-size:12px;white-space:nowrap;cursor:help}
+.badge.ok{border-color:color-mix(in srgb,var(--ok) 45%,transparent);color:var(--ok)}
+.badge.warn{border-color:color-mix(in srgb,var(--warn) 50%,transparent);color:var(--warn)}
+.badge.bad{border-color:color-mix(in srgb,var(--bad) 50%,transparent);color:var(--bad)}
+.badge.watch{border-color:color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent)}
+.fcbtn{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:0 10px;font-size:12px;color:var(--link)}
+.fcbtn:hover{border-color:var(--link)}
+.tip{font-size:12.5px;color:var(--mute);margin-top:6px;border-left:3px solid var(--accent);padding-left:8px}
+.speed{min-width:0}
+.speed .ms{font-weight:650;font-variant-numeric:tabular-nums;font-size:15px}
+.speed .ms small{color:var(--faint);font-weight:400;font-size:12px;margin-left:6px}
+.bar{height:6px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:var(--faint);border-radius:999px;transition:width .5s,background .5s}
+.speed.down .ms{color:var(--bad)}.speed.down .bar{display:none}
+.acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:nowrap}
+.btn{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:13.5px;color:var(--fg);background:var(--surface2);white-space:nowrap;box-sizing:border-box}
+.btn:hover{border-color:var(--accent);text-decoration:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.row.main{background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.badge-main{background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:0 7px;font-size:11.5px;font-weight:700;margin-right:6px}
+.fcpanel{grid-column:1/-1;border-top:1px solid var(--line);margin-top:6px;padding-top:8px;font-size:13px}
+.fcline{display:flex;flex-wrap:wrap;gap:2px 10px;margin:2px 0}.fck{color:var(--mute);min-width:9.5em}.fcv{overflow-wrap:anywhere}.fcul{margin:0;padding-left:18px}.fcnote{color:var(--mute);font-size:12px;margin-top:6px}
+.fcsec{margin-top:18px}.fcsec[hidden]{display:none}.fcsec h3{margin:0 0 4px;font-size:16px}.sub{color:var(--mute);margin:0 0 8px;font-size:13.5px}
+.help{margin:14px 4px 0;display:grid;gap:6px;color:var(--faint);font-size:13px}
+.help b{color:var(--mute);font-weight:600}
+footer{margin:34px 0 40px;color:var(--faint);font-size:13px;display:flex;gap:6px 16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:820px){
+  .wrap{padding:0 16px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:10px}
+  .summary{margin:12px 0 22px}
+  .sum-head{margin-bottom:8px;gap:2px}
+  .stat{padding:9px 12px 8px;border-radius:14px}
+  .stat .label{font-size:12px;gap:4px}
+  .stat .value{font-size:22px;margin:0 0 4px}
+  .stat .value small{font-size:12px}
+  .stat .hint{min-height:14px}
+  .spark{height:14px}
+  .meter{height:6px}
+  .top{flex-direction:column;gap:10px;padding-top:22px}
+  .more-line{display:grid;grid-template-columns:1fr;gap:0;margin:8px 2px 0}
+  .more-line>span{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .more-line b{white-space:nowrap}
+  details.about{margin:6px 2px 0}
+  .cols{display:none}
+  .row{grid-template-columns:16px 1fr 88px;grid-template-areas:"dot who speed" "acts acts acts";gap:8px 12px;padding:14px}
+  .row .dot{grid-area:dot}.row .who{grid-area:who}.row .speed{grid-area:speed}
+  .row .acts{grid-area:acts;display:flex;gap:8px;margin-top:0;justify-content:flex-start}
+  .row .btn{text-align:center;padding:7px 14px;font-size:13.5px}
+  .row.simple{grid-template-columns:1fr;grid-template-areas:none}
+  .row.simple .who{grid-area:auto}
+  .speed .ms small{display:block;margin:0}
+  .help{font-size:12.5px}
+}
+</style></head><body><div class="wrap">
+<header class="top"><div class="brand"><h1><span>CAW</span> Node Portal</h1><p data-i18n="sub"></p></div>
+<div class="tools"><span class="pill beta" data-i18n="beta" data-i18n-title="beta_tip" tabindex="0"></span><div class="seg" id="langseg" role="group" aria-label="Language"><button type="button" data-lang="ja">日本語</button><button type="button" data-lang="en">EN</button></div></div></header>
+
+<section class="summary" aria-labelledby="h-sum">
+<div class="sum-head"><h2 id="h-sum" data-i18n="h_sum"></h2><span class="asof" id="asof"></span></div>
+<div class="stats">
+<div class="stat"><div class="label" data-i18n="s_up"></div><div class="value"><span id="s_up_v">—</span><small id="s_up_of"></small></div><div class="hint"><div class="meter" id="s_up_meter" role="img"><i></i></div></div></div>
+<div class="stat" id="t_users" hidden><div class="label"><span data-i18n="n_users"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_users"></span><small id="u_users"></small></div><div class="hint"></div></div>
+<div class="stat" id="t_posts" hidden><div class="label"><span data-i18n="n_posts"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_posts"></span><small id="u_posts"></small></div><div class="hint"></div></div>
+<div class="stat" id="t_actions" hidden><div class="label"><span data-i18n="n_actions"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_actions"></span><small id="u_actions"></small></div><div class="hint"></div></div>
+</div>
+<div class="more-line"><span><span data-i18n="s_med"></span> <b id="s_med_v">—</b></span><span id="t_activeWeek" hidden><span data-i18n="n_week"></span> <b id="v_activeWeek"></b></span><span id="t_depositedWei" hidden><span data-i18n="n_dep"></span> <b id="v_depositedWei"></b></span></div>
+<details class="about" id="aboutnet" hidden><summary data-i18n="about"></summary><p id="netinfo"></p></details>
+</section>
+
+<section class="nodes" aria-labelledby="h-nodes">
+<div class="list-head"><h2 id="h-nodes" data-i18n="h_nodes"></h2>
+<div class="controls"><div class="seg" id="filterseg" role="group"><button type="button" data-k="f" data-v="all" data-i18n="f_all"></button><button type="button" data-k="f" data-v="up" data-i18n="f_up"></button></div>
+<select id="sortsel"><option value="default" data-i18n="o_def"></option><option value="fast" data-i18n="o_fast"></option><option value="listed" data-i18n="o_listed"></option></select>
+<button type="button" class="ghost" id="re" data-i18n="measure"></button></div></div>
+<p class="note" data-i18n="caution"></p><p class="note ok" id="regnote" hidden></p>
+<div class="cols" aria-hidden="true"><span></span><span data-i18n="col_node"></span><span data-i18n="col_speed"></span><span></span></div>
+<ul class="rows" id="normal">
+<li class="row main" id="gil"><span class="dot wait"></span><div class="who"><div class="name"><span class="badge-main" data-i18n="main_badge"></span>test2.caw.social</div><p class="intro" data-i18n="main_intro"></p><div class="meta"><span class="tags"></span></div></div><div class="speed"><div class="ms"><span>—</span><small></small></div><div class="bar"><i></i></div></div><div class="acts"><a class="btn primary" href="https://test2.caw.social" target="_blank" rel="noopener noreferrer" data-i18n="open" data-i18n-title="open_tip"></a></div></li>
+</ul>
+<div class="fcsec" id="fcsec" hidden><h3 data-i18n="h_fc"></h3><p class="sub" id="fcgen"></p><ul class="rows" id="fccards"></ul></div>
+<div class="help">
+<span><b data-i18n="open"></b> <span data-i18n="help_open"></span></span>
+<span><b data-i18n="check"></b> <b data-i18n="help_check_b"></b> <span data-i18n="help_check"></span></span>
+<span><b data-i18n="b_fcwatch"></b> <span data-i18n="help_watch"></span> <span id="help_updated"></span></span>
+<span><b data-i18n="col_speed"></b> <span data-i18n="help_speed"></span></span>
+<span data-i18n="help_sort"></span>
+</div>
+</section>
+<footer><span id="liveinfo"></span><span data-i18n="auto"></span><a href="https://github.com/Caw-Lab/caw-node-portal" target="_blank" rel="noopener noreferrer">GitHub</a></footer>
+</div>
 <script src="spotcheck/portal-fc.js"></script>
 <script src="netstats/portal-net.js"></script>
 <script>
-const NODES=[{"apiUrl": "https://v2.nyaromesama.com", "regs": 1, "latest": 1, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://tencawffee.com", "regs": 2, "latest": 4, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://v2.cawobservatory.net", "regs": 2, "latest": 81, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://cawnest.com", "regs": 18, "latest": 49, "own": true, "activeAny": true, "comment": "Sample comment: Zin's V2 node. Full node with search and replication.", "group": "normal"}, {"apiUrl": "https://caw-node-api.takstarjp.workers.dev", "regs": 63, "latest": 91, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://dark-caw.com", "regs": 2, "latest": 10, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://node.biancamesh.com", "regs": 1, "latest": 40, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://node.ahdmesh.com", "regs": 1, "latest": 41, "own": true, "activeAny": true, "comment": "", "group": "normal"}];
+const NODES=[{"apiUrl": "https://v2.nyaromesama.com", "regs": 1, "latest": 1, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://tencawffee.com", "regs": 2, "latest": 4, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://v2.cawobservatory.net", "regs": 2, "latest": 81, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://cawnest.com", "regs": 18, "latest": 49, "own": true, "activeAny": true, "comment": "Zin's V2 node. Full node with search and replication.", "group": "normal"}, {"apiUrl": "https://caw-node-api.takstarjp.workers.dev", "regs": 63, "latest": 91, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://dark-caw.com", "regs": 2, "latest": 10, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://node.biancamesh.com", "regs": 1, "latest": 40, "own": true, "activeAny": true, "comment": "", "group": "normal"}, {"apiUrl": "https://node.ahdmesh.com", "regs": 1, "latest": 41, "own": true, "activeAny": true, "comment": "", "group": "normal"}];
 const I={
-ja:{more:'詳細(運営者向け)',n_users:'ユーザー',n_posts:'投稿',n_week:'今週の活動ユーザー',n_actions:'処理されたアクション',n_dep:'預けられた CAW',net_note:'テストネットの数字です。ユーザー・投稿・今週の活動は、各ノードが申告した値の最大値(「以上」)、アクションと預けられた CAW は、チェーンから読んだ値です。実際の利用の多さを示すものではありません。1 日 1 回の集計({date} 時点)。',verify:'コントラクトを照合(外部の試験サービス)',verify_note:'各ノードの「コントラクトを照合」は、別サイトの試験サービス(zinsanjp が個人で運営。Caw-Lab のものではなく、止まることがあります)を新しいタブで開きます。サイトに書かれたコントラクトのアドレスを、Gilgamesh の master のものと比べます。ファイルは検査しません。レジストリにあるのはノードの API のアドレスなので、フロントエンドが別のアドレスにあるノードでは、「違う」や「読めない」と出ることがあります。結果は安全の保証ではありません。',h_fc:'配信ファイルを監視しているノード',fc_note:'GitHub のサーバーが 1 時間ごとに、ノードが配っているファイルの一部を取って、そのノード自身のファイル一覧(build-manifest.json)と比べています。事故や破損、デプロイの食い違いに気づくための監視で、ノードが信頼できることや、公式のコード(GitHub の master)を配っていることを示すものではありません。ノードがファイルとファイル一覧の両方を変えていれば、見つかりません。',fc_btn:'検証の詳細',fc_hide:'閉じる',b_fcok:'ファイル一覧と一致',b_fcdiff:'ファイル一覧と違うファイルあり',b_fcchg:'ファイル一覧が変更',b_fcnone:'ファイル一覧なし',b_fcfail:'検証できず',t_fcok:'検証したファイルは、すべて、ノード自身のファイル一覧と一致しました(index.html、読み込まれるスクリプト、鍵や署名に関わる名前のファイル、ランダムに選んだ 20 件)。ファイル一覧そのものが公式のものかは、確かめていません。ノードが安全であることを示すものではありません。',t_fcdiff:'検証したファイルのうち、ノード自身のファイル一覧と違うものがありました(または、index.html が、ファイル一覧にないスクリプトを読み込んでいます)。更新の途中や、キャッシュ、部分的なデプロイでも起こります。ノードが悪意を持っている、という意味ではありません。',t_fcchg:'ファイルはファイル一覧と一致していますが、ファイル一覧の中身が、版の文字列は同じまま、前回の検証から変わりました。未コミットの修正を入れ直した場合も、この表示になります。',t_fcnone:'このノードは build-manifest.json を公開していないか、読めない形なので、検証していません(古い版や、設定の違いなど)。',t_fcfail:'検証のとき、ノードのファイルを読めませんでした(停止中、通信の制限、ブロックなど)。ノードに問題がある、という意味ではありません。',fc_state:'状態',fc_when:'検証',fc_ver:'版',fc_files:'ファイル一覧の件数',fc_chk:'検証したファイル',fc_prob:'ファイル一覧と違ったファイル',fc_hist:'ファイル一覧の変更履歴',fc_ext:'外部から読み込むもの',fc_idx_exact:'ファイル一覧と一致',fc_idx_after:'一致(インストーラーが入れた住所を戻して)',fc_idx_diff:'ファイル一覧と違う',fc_idx_unl:'ファイル一覧にない',fc_p_mismatched:'違う',fc_p_missing:'配っていない',fc_p_errored:'読めなかった',fc_p_unlisted:'ファイル一覧にないものを読み込んでいる',fc_p_different:'違う',fc_partial:'読めなかったファイルがあるため、一部は確認できていません。',s_up:'応答あり',s_med:'往復時間の中央値',s_n:'一覧を返したノード',f_label:'表示',f_all:'すべて',f_up:'応答ありのみ',o_label:'並べ替え',o_def:'標準(アルファベット順)',o_fast:'速い順',o_listed:'掲載数の順',sub:'ノードを選んで参加する入口(仮の案)',mock:'モック表示です。一覧は、各ノードの /api/instances を、このブラウザが取得して集計します(取得できるまでは、2026-10-25 のスナップショット)。コメントは仮文です。レイテンシは、このブラウザから各ノードへの往復時間です。',measure:'今すぐ測定',auto:'5秒ごとに自動更新(タブが裏のときは停止)',h_main:'本流',fixed:'固定',main_meta:'本流のノード(レジストリには未登録)',nocomment:'(コメントはまだありません)',open:'このノードを開く',h_reg:'レジストリに登録されたノード',caution:'注意: ここに並ぶのは、レジストリへの自己申告です。誰でも登録でき、正規のノードかどうかは確認していません。開く前に、運営者を確かめてください。下のバッジは、ここから確かめられることだけを示すもので、ノードが正規であることの証明ではありません。',b_own:'登録者の鍵で登録',b_other:'登録者の鍵と検証者アドレスが別',b_act:'レジストリで有効',b_inact:'レジストリで無効',b_up:'応答あり',b_down:'応答なし',b_wait:'測定中',b_hand:'手動で選定',t_own:'登録を送ったアカウントが、登録された検証者アドレスと同じです。この URL のサーバーを動かしている人までは、分かりません。',t_other:'登録を送ったアカウントが、登録された検証者アドレスと別です。',t_act:'レジストリ上で、この URL の登録のうち少なくとも 1 つが有効です(スナップショット時点)。',t_inact:'レジストリ上で、この URL の登録はすべて無効です。',t_up:'いま、このブラウザからの要求に、ノードが応答しました。',t_down:'いま、このブラウザからの要求に、ノードが応答しませんでした(停止中、またはブラウザからの読み取りを許可していない場合があります)。',t_wait:'測定中です。',t_hand:'私たちが手で選んだノードです。',b_unseen:'今の一覧にない',t_unseen:'応答したノードのどの一覧にも、いま、この URL は載っていません(スナップショットにだけあります)。',t_seen:'一覧を返したノードのうち、この数のノードが、この登録(最新の有効なもの)を、自分のレジストリのデータに持っています。多数決ではなく、正しさの証明でもありません。1 台だけが持っている登録は、そのノードの主張にすぎません。',b_partial:'一部問題あり',t_partial:'このノードが返した登録の一覧は、他の多くのノードより、かなり少なくなっています(たとえば、自分の登録だけを返している、レジストリの取り込みが途中、など)。ノード全体の問題とは限りません。',b_empty:'一部問題あり',t_empty:'このノードが返した登録の一覧は、空です(レジストリを、まだ取り込んでいない可能性があります)。ノード全体の問題とは限りません。',b_badurl:'URL を測定しない',t_badurl:'この URL は、安全のため、測定もリンクもしません(https 以外、ポート指定、IP アドレス、内部名など)。'},
-en:{more:'Details (for operators)',n_users:'Users',n_posts:'Posts',n_week:'Active this week',n_actions:'Actions processed',n_dep:'CAW in deposit',net_note:'Testnet numbers. Users, posts and activity this week are the largest values the nodes reported about themselves (“at least”); actions and CAW in deposit are read from the chains. They do not show how much the network is really used. Collected once a day (as of {date}).',verify:'Check its contracts (external trial service)',verify_note:'“Check its contracts” on each node opens a separate trial service in a new tab (run by zinsanjp personally, not by Caw-Lab; it may stop). It compares the contract addresses written in the site with those of Gilgamesh’s master. It does not check the files. The registry lists a node’s API address, so for a node whose frontend is at another address the result may be “different” or “cannot be read”. A result is not a guarantee of safety.',h_fc:'Nodes whose served files are monitored',fc_note:'Every hour, a GitHub server downloads some of the files a node serves and compares them with that node’s own file list (build-manifest.json). This is monitoring, to notice accidents, damage and mismatched deployments. It does not show that a node can be trusted, or that it serves the official code (the GitHub master). If a node changed both the files and its file list, this does not find it.',fc_btn:'Check details',fc_hide:'Close',b_fcok:'Matches its file list',b_fcdiff:'Differs from its file list',b_fcchg:'File list changed',b_fcnone:'No file list',b_fcfail:'Not checked',t_fcok:'All checked files match the node’s own file list (index.html, the scripts it loads, files named after keys or signing, and 20 chosen at random). Whether the file list itself is the official one was not checked. It does not show that the node is safe.',t_fcdiff:'Some checked files differ from the node’s own list (or index.html loads a script that the list does not know). This also happens during an update, because of caching, or after a partial deploy. It does not mean the node is malicious.',t_fcchg:'The files match the list, but the list changed since the last check while the version string stayed the same. Re-applying an uncommitted fix also looks like this.',t_fcnone:'This node publishes no build-manifest.json, or in a form that cannot be read, so it was not checked (an older version, a different setup, and so on).',t_fcfail:'The node’s files could not be read during the check (it may be down, limiting requests or blocking them). It does not mean the node has a problem.',fc_state:'State',fc_when:'Checked',fc_ver:'Version',fc_files:'Files in its list',fc_chk:'Files checked',fc_prob:'Files that differ',fc_hist:'List history',fc_ext:'Loaded from other sites',fc_idx_exact:'matches its list',fc_idx_after:'matches (with the address the installer put in undone)',fc_idx_diff:'differs from its list',fc_idx_unl:'not in its list',fc_p_mismatched:'differs',fc_p_missing:'not served',fc_p_errored:'could not be read',fc_p_unlisted:'loaded, but not in the list',fc_p_different:'differs',fc_partial:'Some files could not be read, so part of the check is missing.',s_up:'Responding',s_med:'Median round trip',s_n:'Nodes with a list',f_label:'Show',f_all:'All',f_up:'Responding only',o_label:'Sort',o_def:'Default (A–Z)',o_fast:'Fastest',o_listed:'Most listed',sub:'A gateway to pick a node and join (draft)',mock:'Mock. This browser fetches /api/instances from each node and builds the list (until then, the snapshot of 2026-10-25). Comments are placeholders. Latency is the round-trip time from this browser to each node.',measure:'Measure now',auto:'Updates every 5 s (paused while the tab is hidden)',h_main:'Mainline',fixed:'Fixed',main_meta:'Mainline node (not in the registry)',nocomment:'(No comment yet)',open:'Open this node',h_reg:'Nodes in the registry',caution:'Caution: these entries are self-reported to the registry. Anyone can register, and we have not verified that a node is legitimate. Check who runs it before you open it. The badges below only show what can be checked from here; they do not prove that a node is legitimate.',b_own:'Registered by its own key',b_other:'Registered by another key',b_act:'Active in registry',b_inact:'Inactive in registry',b_up:'Responding',b_down:'No response',b_wait:'Measuring',b_hand:'Hand-picked',t_own:'The account that sent the registration is the same as the registered validator address. It does not show who runs the server at this URL.',t_other:'The account that sent the registration is different from the registered validator address.',t_act:'At least one registration for this URL is marked active in the registry (as of the snapshot).',t_inact:'All registrations for this URL are marked inactive in the registry.',t_up:'The node answered this browser just now.',t_down:'The node did not answer this browser just now (it may be down, or it may not allow browsers to read it).',t_wait:'Measuring.',t_hand:'A node we chose by hand.',b_unseen:'Not in the live lists',t_unseen:'None of the nodes that answered lists this URL now (it is only in the snapshot).',t_seen:'This many of the nodes that returned a list have this registration (the latest active one) in their own registry data. It is not a vote and not proof that the entry is right. An entry that only one node has is just that node\'s claim.',b_partial:'Some issues',t_partial:"The registry list this node returns is much shorter than that of most other nodes (for example it lists only its own registrations, or its registry sync is incomplete). This does not mean the whole node has a problem.",b_empty:'Some issues',t_empty:'The registry list this node returns is empty (it may not have synced the registry yet). This does not mean the whole node has a problem.',b_badurl:'URL not measured',t_badurl:'For safety this URL is neither measured nor linked (not https, has a port, is an IP address or an internal name, and so on).'}
+ja:{
+  fc_note:"GitHub のサーバーが 1 時間ごとに、ノードが配っているファイルの一部を取って、そのノード自身のファイル一覧(build-manifest.json)と比べています。事故や破損、デプロイの食い違いに気づくための監視で、ノードが信頼できることや、公式のコード(GitHub の master)を配っていることを示すものではありません。ノードがファイルとファイル一覧の両方を変えていれば、見つかりません。",
+  fc_hide:"閉じる",
+  b_fcok:"ファイル一覧と一致",
+  b_fcdiff:"ファイル一覧と違うファイルあり",
+  b_fcchg:"ファイル一覧が変更",
+  b_fcnone:"ファイル一覧なし",
+  b_fcfail:"検証できず",
+  t_fcok:"検証したファイルは、すべて、ノード自身のファイル一覧と一致しました(index.html、読み込まれるスクリプト、鍵や署名に関わる名前のファイル、ランダムに選んだ 20 件)。ファイル一覧そのものが公式のものかは、確かめていません。ノードが安全であることを示すものではありません。",
+  t_fcdiff:"検証したファイルのうち、ノード自身のファイル一覧と違うものがありました(または、index.html が、ファイル一覧にないスクリプトを読み込んでいます)。更新の途中や、キャッシュ、部分的なデプロイでも起こります。ノードが悪意を持っている、という意味ではありません。",
+  t_fcchg:"ファイルはファイル一覧と一致していますが、ファイル一覧の中身が、版の文字列は同じまま、前回の検証から変わりました。未コミットの修正を入れ直した場合も、この表示になります。",
+  t_fcnone:"このノードは build-manifest.json を公開していないか、読めない形なので、検証していません(古い版や、設定の違いなど)。",
+  t_fcfail:"検証のとき、ノードのファイルを読めませんでした(停止中、通信の制限、ブロックなど)。ノードに問題がある、という意味ではありません。",
+  fc_state:"状態",
+  fc_when:"検証",
+  fc_ver:"版",
+  fc_files:"ファイル一覧の件数",
+  fc_chk:"検証したファイル",
+  fc_prob:"ファイル一覧と違ったファイル",
+  fc_hist:"ファイル一覧の変更履歴",
+  fc_ext:"外部から読み込むもの",
+  fc_idx_exact:"ファイル一覧と一致",
+  fc_idx_after:"一致(インストーラーが入れた住所を戻して)",
+  fc_idx_diff:"ファイル一覧と違う",
+  fc_idx_unl:"ファイル一覧にない",
+  fc_p_mismatched:"違う",
+  fc_p_missing:"配っていない",
+  fc_p_errored:"読めなかった",
+  fc_p_unlisted:"ファイル一覧にないものを読み込んでいる",
+  fc_p_different:"違う",
+  fc_partial:"読めなかったファイルがあるため、一部は確認できていません。",
+  b_own:"登録者の鍵で登録",
+  b_other:"登録者の鍵と検証者アドレスが別",
+  b_act:"レジストリで有効",
+  b_inact:"レジストリで無効",
+  b_hand:"手動で選定",
+  t_own:"登録を送ったアカウントが、登録された検証者アドレスと同じです。この URL のサーバーを動かしている人までは、分かりません。",
+  t_other:"登録を送ったアカウントが、登録された検証者アドレスと別です。",
+  t_act:"レジストリ上で、この URL の登録のうち少なくとも 1 つが有効です(スナップショット時点)。",
+  t_inact:"レジストリ上で、この URL の登録はすべて無効です。",
+  t_hand:"私たちが手で選んだノードです。",
+  b_unseen:"今の一覧にない",
+  t_unseen:"応答したノードのどの一覧にも、いま、この URL は載っていません(スナップショットにだけあります)。",
+  t_seen:"一覧を返したノードのうち、この数のノードが、この登録(最新の有効なもの)を、自分のレジストリのデータに持っています。多数決ではなく、正しさの証明でもありません。1 台だけが持っている登録は、そのノードの主張にすぎません。",
+  b_partial:"一部問題あり",
+  t_partial:"このノードが返した登録の一覧は、他の多くのノードより、かなり少なくなっています(たとえば、自分の登録だけを返している、レジストリの取り込みが途中、など)。ノード全体の問題とは限りません。",
+  b_empty:"一部問題あり",
+  t_empty:"このノードが返した登録の一覧は、空です(レジストリを、まだ取り込んでいない可能性があります)。ノード全体の問題とは限りません。",
+  b_badurl:"URL を測定しない",
+  t_badurl:"この URL は、安全のため、測定もリンクもしません(https 以外、ポート指定、IP アドレス、内部名など)。",
+  sub:"ノードを選んで参加する入口",
+  beta:"試験版",
+  beta_tip:"試験版です。運営者の紹介には、まだ仮の文が含まれます。",
+  h_sum:"CAWネットワーク状況",
+  asof:"テストネット ・ {date} 時点(1日1回更新)",
+  s_up:"応答中のノード",
+  n_users:"ユーザー数",
+  n_posts:"投稿数",
+  n_actions:"アクション数",
+  cum:"累計",
+  s_med:"応答速度(いまの中央値)",
+  n_week:"今週の活動ユーザー(直近 7 日)",
+  n_dep:"預けられた CAW(いまの残高)",
+  about:"この数字について",
+  net_note:"テストネットの数字で、実際の利用の多さを示すものではありません。「累計」は、これまでの合計で、減ることはありません。「今週」は直近 7 日、「いまの残高」「いまの中央値」は現在の値です。ユーザー・投稿・今週の活動は、各ノードが申告した値の最大値(「以上」)。アクション数(投稿・いいね・フォローなど、チェーンが処理した操作の数)と預けられた CAW は、チェーンから読んだ値です。1 日 1 回の集計です。応答速度は、いまご覧のブラウザから各ノードへの往復時間です。",
+  h_nodes:"ノード一覧",
+  f_all:"すべて",
+  f_up:"応答ありのみ",
+  o_def:"標準(名前順)",
+  o_fast:"応答が速い順",
+  o_listed:"掲載数の順",
+  measure:"今すぐ測定",
+  caution:"ここに並ぶのは、レジストリへの自己申告です。誰でも登録できるため、正規のノードかどうかは確認していません。開く前に、運営者を確かめてください。",
+  all_ok:"レジストリの {n} 件は、すべて登録者の鍵で登録され、有効です。",
+  col_node:"ノード / 運営者からの紹介",
+  col_speed:"応答速度",
+  main_badge:"本流",
+  main_intro:"Gilgamesh の本流ノードです。レジストリには未登録です。",
+  nointro:"(運営者の紹介は、まだありません)",
+  iid:"インスタンス #{n}",
+  avg:"平均 {n} ms",
+  noresp:"応答なし",
+  open:"サイトを開く",
+  open_tip:"このノードのサイトを、新しいタブで開きます。",
+  check:"整合性チェック",
+  check_tip:"このサイトのフロントエンド(画面のプログラム)が、公開されているコードと合っているかを確かめます。いまは、つながっているコントラクトの確認だけです(外部の試験サービス)。",
+  help_open:"そのノードのウェブサイトを、新しいタブで開きます。",
+  help_check_b:"いまできるのは、つながっているコントラクトの確認だけです(ファイルの確認は準備中)。",
+  help_check:"そのサイトのフロントエンド(画面のプログラム)が、公開されているコードと合っているかを、外部の試験サービスで確かめます(zinsanjp が個人で運営。Caw-Lab のものではなく、止まることがあります)。結果は、安全の保証ではありません。レジストリにあるのはノードの API のアドレスなので、フロントエンドが別のアドレスにあるノードでは、「違う」や「読めない」と出ることがあります。",
+  help_watch:"毎時、そのノードが配っているファイルを、ノード自身のファイル一覧と比べて、食い違いがあれば、印を出します。事故や破損に気づくための監視で、公式のコードかどうか、安全かどうかは、示しません。",
+  help_updated:"(最終更新: {ago})",
+  help_speed:"いまご覧のブラウザから、そのノードへの往復時間です(短いほど速い)。",
+  help_sort:"標準は、応答しているノードが先で、同じ区分では名前順です。",
+  h_fc:"配信ファイルを監視しているノード",
+  fc_btn:"監視の詳細",
+  b_fcwatch:"ファイル監視中",
+  t_fcwatch:"検証したファイルは、すべて、ノード自身のファイル一覧と一致しました(index.html、読み込まれるスクリプト、鍵や署名に関わる名前のファイル、ランダムに選んだ 20 件)。ファイル一覧そのものが公式のものかは、確かめていません。ノードが安全であることを示すものではありません。",
+  auto:"5秒ごとに自動更新(タブが裏のときは停止)",
+  waiting:"ライブ取得を待っています(いまは 2026-10-25 のスナップショット)",
+  tt_snapshot:"一覧は、各ノードの /api/instances を、このブラウザが取得して集計します。"
+},
+en:{
+  fc_note:"Every hour, a GitHub server downloads some of the files a node serves and compares them with that node’s own file list (build-manifest.json). This is monitoring, to notice accidents, damage and mismatched deployments. It does not show that a node can be trusted, or that it serves the official code (the GitHub master). If a node changed both the files and its file list, this does not find it.",
+  fc_hide:"Close",
+  b_fcok:"Matches its file list",
+  b_fcdiff:"Differs from its file list",
+  b_fcchg:"File list changed",
+  b_fcnone:"No file list",
+  b_fcfail:"Not checked",
+  t_fcok:"All checked files match the node’s own file list (index.html, the scripts it loads, files named after keys or signing, and 20 chosen at random). Whether the file list itself is the official one was not checked. It does not show that the node is safe.",
+  t_fcdiff:"Some checked files differ from the node’s own list (or index.html loads a script that the list does not know). This also happens during an update, because of caching, or after a partial deploy. It does not mean the node is malicious.",
+  t_fcchg:"The files match the list, but the list changed since the last check while the version string stayed the same. Re-applying an uncommitted fix also looks like this.",
+  t_fcnone:"This node publishes no build-manifest.json, or in a form that cannot be read, so it was not checked (an older version, a different setup, and so on).",
+  t_fcfail:"The node’s files could not be read during the check (it may be down, limiting requests or blocking them). It does not mean the node has a problem.",
+  fc_state:"State",
+  fc_when:"Checked",
+  fc_ver:"Version",
+  fc_files:"Files in its list",
+  fc_chk:"Files checked",
+  fc_prob:"Files that differ",
+  fc_hist:"List history",
+  fc_ext:"Loaded from other sites",
+  fc_idx_exact:"matches its list",
+  fc_idx_after:"matches (with the address the installer put in undone)",
+  fc_idx_diff:"differs from its list",
+  fc_idx_unl:"not in its list",
+  fc_p_mismatched:"differs",
+  fc_p_missing:"not served",
+  fc_p_errored:"could not be read",
+  fc_p_unlisted:"loaded, but not in the list",
+  fc_p_different:"differs",
+  fc_partial:"Some files could not be read, so part of the check is missing.",
+  b_own:"Registered by its own key",
+  b_other:"Registered by another key",
+  b_act:"Active in registry",
+  b_inact:"Inactive in registry",
+  b_hand:"Hand-picked",
+  t_own:"The account that sent the registration is the same as the registered validator address. It does not show who runs the server at this URL.",
+  t_other:"The account that sent the registration is different from the registered validator address.",
+  t_act:"At least one registration for this URL is marked active in the registry (as of the snapshot).",
+  t_inact:"All registrations for this URL are marked inactive in the registry.",
+  t_hand:"A node we chose by hand.",
+  b_unseen:"Not in the live lists",
+  t_unseen:"None of the nodes that answered lists this URL now (it is only in the snapshot).",
+  t_seen:"This many of the nodes that returned a list have this registration (the latest active one) in their own registry data. It is not a vote and not proof that the entry is right. An entry that only one node has is just that node's claim.",
+  b_partial:"Some issues",
+  t_partial:"The registry list this node returns is much shorter than that of most other nodes (for example it lists only its own registrations, or its registry sync is incomplete). This does not mean the whole node has a problem.",
+  b_empty:"Some issues",
+  t_empty:"The registry list this node returns is empty (it may not have synced the registry yet). This does not mean the whole node has a problem.",
+  b_badurl:"URL not measured",
+  t_badurl:"For safety this URL is neither measured nor linked (not https, has a port, is an IP address or an internal name, and so on).",
+  sub:"A gateway to pick a node and join",
+  beta:"Beta",
+  beta_tip:"A trial version. Some introductions are still placeholders.",
+  h_sum:"CAW network status",
+  asof:"Testnet · as of {date} (updated once a day)",
+  s_up:"Nodes responding",
+  n_users:"Users",
+  n_posts:"Posts",
+  n_actions:"Actions",
+  cum:"total",
+  s_med:"Response time (median, now)",
+  n_week:"Active users this week (last 7 days)",
+  n_dep:"CAW in deposit (current balance)",
+  about:"About these numbers",
+  net_note:"Testnet numbers; they do not show how much the network is really used. “Total” is the sum so far and never goes down. “This week” is the last 7 days; “current balance” and “median, now” are present values. Users, posts and activity this week are the largest values the nodes reported about themselves (“or more”). Actions (posts, likes, follows and other operations the chain processed) and CAW in deposit are read from the chains. Collected once a day. Response time is the round trip from the browser you are using to each node.",
+  h_nodes:"Nodes",
+  f_all:"All",
+  f_up:"Responding only",
+  o_def:"Default (A–Z)",
+  o_fast:"Fastest first",
+  o_listed:"Most listed",
+  measure:"Measure now",
+  caution:"These entries are self-reported to the registry. Anyone can register, and we have not verified that a node is legitimate. Check who runs a node before you open it.",
+  all_ok:"All {n} registry entries were registered by their own key and are active.",
+  col_node:"Node / introduction by its operator",
+  col_speed:"Response time",
+  main_badge:"Mainline",
+  main_intro:"Gilgamesh’s mainline node. Not in the registry.",
+  nointro:"(The operator has not added an introduction yet)",
+  iid:"Instance #{n}",
+  avg:"avg {n} ms",
+  noresp:"No response",
+  open:"Open site",
+  open_tip:"Opens this node’s site in a new tab.",
+  check:"Integrity check",
+  check_tip:"Checks whether this site’s frontend matches published code. For now it only checks which contracts the site points at (an external trial service).",
+  help_open:"Opens the node’s website in a new tab.",
+  help_check_b:"For now it only checks which contracts the site points at (a file check is planned).",
+  help_check:"Checks, with an external trial service, whether the site’s frontend matches published code (run by zinsanjp personally, not by Caw-Lab; it may stop). A result is not a guarantee of safety. The registry lists a node’s API address, so for a node whose frontend is at another address the result may be “different” or “cannot be read”.",
+  help_watch:"Every hour, the files a node serves are compared with that node’s own file list, and a mark is shown when they differ. It is monitoring, to notice accidents and damage; it does not show that the code is official or that the node is safe.",
+  help_updated:"(last updated: {ago})",
+  help_speed:"The round trip from the browser you are using to the node (shorter is faster).",
+  help_sort:"Default: nodes that answer come first, then by name.",
+  h_fc:"Nodes whose served files are monitored",
+  fc_btn:"Monitoring details",
+  b_fcwatch:"Files monitored",
+  t_fcwatch:"All checked files match the node’s own file list (index.html, the scripts it loads, files named after keys or signing, and 20 chosen at random). Whether the file list itself is the official one was not checked. It does not show that the node is safe.",
+  auto:"Updates every 5 s (paused while the tab is hidden)",
+  waiting:"Waiting for the live lists (showing the 2026-10-25 snapshot for now)",
+  tt_snapshot:"The list is built by this browser from each node’s /api/instances."
+}
 };
 let lang='en';
 try{lang=localStorage.getItem('lang')||''}catch(e){lang=''}
 if(lang!=='ja'&&lang!=='en')lang=(navigator.language||'').toLowerCase().startsWith('ja')?'ja':'en';
 function showTip(e){
-  const col=e.parentNode.parentNode;let tip=col.querySelector('.tip');
+  const col=e.parentNode.parentNode.parentNode;let tip=col.querySelector(':scope > .tip');
   const txt=e.title;
   if(tip&&tip.textContent===txt){tip.remove();return}
   if(!tip){tip=document.createElement('div');tip.className='tip';col.appendChild(tip)}
@@ -98,38 +410,48 @@ function safeUrl(u){
     return x.origin;
   }catch(e){return null}
 }
+// Only what is not ordinary is shown on a row: a registrant that differs, an inactive registration, an incomplete list, a registration few nodes list.
+// "Everything is normal" is said once, above the list (renderRegNote). Whether a node answers is the dot and the speed, not a badge.
 function renderBadges(r){
   if(!r.badges)return;
   r.badges.replaceChildren();
-  if(r.hand){badge(r.badges,'hand','b_hand');if(r.compl==='partial')badge(r.badges,'warn','b_partial');else if(r.compl==='empty')badge(r.badges,'warn','b_empty')}
+  if(r.hand){if(r.compl==='partial')badge(r.badges,'warn','b_partial');else if(r.compl==='empty')badge(r.badges,'warn','b_empty')}
   else if(r.url===null){badge(r.badges,'bad','b_badurl')}
   else{
-    badge(r.badges,r.n.own?'ok':'',r.n.own?'b_own':'b_other');
-    badge(r.badges,r.n.activeAny?'ok':'bad',r.n.activeAny?'b_act':'b_inact');
+    if(!r.n.own)badge(r.badges,'','b_other');
+    if(!r.n.activeAny)badge(r.badges,'bad','b_inact');
     if(r.compl==='partial')badge(r.badges,'warn','b_partial');else if(r.compl==='empty')badge(r.badges,'warn','b_empty');
     if(r.n.seen!==undefined&&r.n.N>=2){
       if(r.n.seen===0)badge(r.badges,'','b_unseen');
-      else badge(r.badges,r.n.seen===r.n.N?'ok':(r.n.seen*2>=r.n.N?'':'bad'),'b_seen',lang==='ja'?'掲載 '+r.n.seen+'/'+r.n.N+' ノード':'Listed by '+r.n.seen+' of '+r.n.N+' nodes');
+      else if(r.n.seen!==r.n.N)badge(r.badges,r.n.seen*2>=r.n.N?'':'bad','b_seen',lang==='ja'?'掲載 '+r.n.seen+'/'+r.n.N+' ノード':'Listed by '+r.n.seen+' of '+r.n.N+' nodes');
     }
   }
   if(r.url===null)return;
-  if(r.state==='ok')badge(r.badges,'ok','b_up');else if(r.state==='err')badge(r.badges,'bad','b_down');else badge(r.badges,'','b_wait');
   fcAttach(r);
 }
+function renderRegNote(){
+  const el=document.getElementById('regnote');
+  const list=rows.filter(r=>!r.hand&&r.url);
+  const normal=list.length>0&&list.every(r=>r.n.own&&r.n.activeAny&&(!r.compl||r.compl==='full')&&(r.n.seen===undefined||r.n.N<2||r.n.seen===r.n.N));
+  el.hidden=!normal;
+  if(normal)el.textContent=I[lang].all_ok.replace('{n}',list.length);
+}
 function renderRow(r){
-  if(r.m)r.m.textContent=(lang==='ja'?'最新の instanceId ':'Latest instanceId ')+(r.n.latest??'—');
+  const T=I[lang];
+  if(r.m)r.m.textContent=T.iid.replace('{n}',r.n.latest??'—');
+  if(r.intro){const has=!!r.n.comment;r.intro.textContent=has?r.n.comment:T.nointro;r.intro.className='intro'+(has?'':' empty')}
   renderBadges(r);
+  if(r.dot)r.dot.className='dot'+(r.state==='ok'?'':r.state==='err'?' down':' wait');
   if(r.state==='ok'){
-    r.t.textContent=r.ms+' ms';r.t.style.color=color(r.ms);
-    r.av.textContent=lang==='ja'?'直近'+r.hist.length+'回の平均 '+r.avg+' ms':'Average of last '+r.hist.length+': '+r.avg+' ms';
+    r.t.textContent=r.ms+' ms';r.av.textContent=T.avg.replace('{n}',r.avg);r.speed.classList.remove('down');
   }else if(r.state==='err'){
-    r.t.textContent=lang==='ja'?'応答なし':'No response';r.t.style.color='var(--bad)';
+    r.t.textContent=T.noresp;r.av.textContent='';r.speed.classList.add('down');
   }
 }
 let live=null;
 function renderLive(){
   const e=document.getElementById('liveinfo');
-  if(!live){e.textContent=lang==='ja'?'ライブ取得を待っています(いまは 2026-10-25 のスナップショット)':'Waiting for the live lists (showing the 2026-10-25 snapshot for now)';return}
+  if(!live){e.textContent=I[lang].waiting;return}
   const tm=live.time.toLocaleTimeString();
   e.textContent=lang==='ja'
     ?'ライブ:一覧を返した '+live.N+' 台のノードから集計('+tm+')'+(live.incomplete?' / 一覧が不完全な '+live.incomplete+' 台は数えません':'')+(live.bad?' / 許可しない URL の登録 '+live.bad+' 件は表示しません':'')+(live.hidden?' / 上限のため '+live.hidden+' 件は表示しません':'')
@@ -138,12 +460,14 @@ function renderLive(){
 function applyLang(){
   document.documentElement.lang=lang;
   for(const e of document.querySelectorAll('[data-i18n]'))e.textContent=I[lang][e.dataset.i18n];
-  for(const b of document.querySelectorAll('.lang button'))b.classList.toggle('on',b.dataset.lang===lang);
-  for(const b of document.querySelectorAll('.seg button'))b.classList.toggle('on',(b.dataset.k==='f'?view.f:view.o)===b.dataset.v);
-  rows.forEach(renderRow);renderLive();renderSummary();renderFcSection();renderNet();
+  for(const e of document.querySelectorAll('[data-i18n-title]'))e.title=I[lang][e.dataset.i18nTitle];
+  for(const b of document.querySelectorAll('#langseg button'))b.setAttribute('aria-pressed',String(b.dataset.lang===lang));
+  for(const b of document.querySelectorAll('#filterseg button'))b.setAttribute('aria-pressed',String(view.f===b.dataset.v));
+  document.getElementById('sortsel').value=view.o;
+  rows.forEach(renderRow);renderLive();renderSummary();renderFcSection();renderNet();renderRegNote();
 }
 function setLang(l){lang=l;try{localStorage.setItem('lang',l)}catch(e){}applyLang()}
-for(const b of document.querySelectorAll('.lang button'))b.onclick=()=>setLang(b.dataset.lang);
+for(const b of document.querySelectorAll('#langseg button'))b.onclick=()=>setLang(b.dataset.lang);
 function color(ms){return ms<400?'var(--ok)':ms<1200?'var(--warn)':'var(--bad)'}
 // ---- file consistency (spotcheck): status.json is written by a scheduled GitHub run (see spotcheck/) ----
 const FC_URL='https://raw.githubusercontent.com/Caw-Lab/caw-node-portal/data/status.json';
@@ -164,10 +488,11 @@ function fcPanel(res){
   if(res.history.length>1){const b=fcEl('div','fcline');b.appendChild(fcEl('span','fck',T.fc_hist));const ul=fcEl('ul','fcul');for(const h of res.history.slice(-5)){ul.appendChild(fcEl('li','',(h.at?new Date(h.at).toLocaleDateString():'')+'  '+h.clientVersion+'  '+h.manifestHash.slice(0,12)))}b.appendChild(ul);p.appendChild(b)}
   if(res.external.length)fcLine(p,T.fc_ext,res.external.join(', '));
   if(!res.complete&&res.checked)p.appendChild(fcEl('div','fcnote',T.fc_partial));
-  p.appendChild(fcEl('div','fcnote',T.fc_note));
+  p.appendChild(fcEl('div','fcnote',T.help_watch));
   return p;
 }
-function fcBadge(box,res){const b=FC.BADGE[res.state];badge(box,b.cls,b.key)}
+// A node whose files all match its own file list is shown as "files monitored" (a neutral word: it is not a certificate); other states keep their own badge.
+function fcBadge(box,res){if(res.state==='consistent'){badge(box,'watch','b_fcwatch');return}const b=FC.BADGE[res.state];badge(box,b.cls,b.key)}
 function fcRefresh(url){const r=byUrl.get(url);if(r)renderRow(r);else renderFcSection()}
 function fcButton(box,url){
   const b=fcEl('button','fcbtn',fcOpen.has(url)?I[lang].fc_hide:I[lang].fc_btn);b.type='button';
@@ -184,19 +509,22 @@ function fcAttach(r){
 function renderFcSection(){
   const sec=document.getElementById('fcsec');if(!sec)return;
   const box=document.getElementById('fccards');box.replaceChildren();
-  if(!fc){sec.hidden=true;return}
+  const hu=document.getElementById('help_updated');
+  if(!fc){sec.hidden=true;if(hu)hu.textContent='';return}
   let shown=0;
   for(const [url,res] of fc.nodes){
-    if(byUrl.has(url))continue; // it has a card above, with its own badge and button
-    const c=fcEl('div','card');const l=fcEl('div');
-    const a=fcEl('a','name',url);a.href=url;a.target='_blank';a.rel='noopener noreferrer';l.appendChild(a);
-    const bx=fcEl('div','badges');l.appendChild(bx);c.appendChild(l);
+    if(byUrl.has(url))continue; // it has a row above, with its own badge and button
+    const c=fcEl('li','row simple');const l=fcEl('div','who');
+    const a=fcEl('a','name',url.replace(/^https:\/\//,''));a.href=url;a.target='_blank';a.rel='noopener noreferrer';l.appendChild(a);
+    const mt=fcEl('div','meta');const bx=fcEl('span','tags');mt.appendChild(bx);l.appendChild(mt);c.appendChild(l);
     fcBadge(bx,res);fcButton(bx,url);
     if(fcOpen.has(url))c.appendChild(fcPanel(res));
     box.appendChild(c);shown++;
   }
   sec.hidden=shown===0;
-  const g=document.getElementById('fcgen');if(g)g.textContent=fc.generatedAt?(lang==='ja'?'最終更新 ':'Updated ')+new Date(fc.generatedAt).toLocaleString()+' ('+fcAgo(fc.generatedAt)+')':'';
+  const ago=fc.generatedAt?fcAgo(fc.generatedAt):'';
+  const g=document.getElementById('fcgen');if(g)g.textContent=fc.generatedAt?(lang==='ja'?'最終更新 ':'Updated ')+new Date(fc.generatedAt).toLocaleString()+' ('+ago+')':'';
+  if(hu)hu.textContent=ago?I[lang].help_updated.replace('{ago}',ago):'';
 }
 async function loadFc(){
   try{
@@ -207,6 +535,7 @@ async function loadFc(){
     fc=parsed;rows.forEach(renderRow);renderFcSection();
   }catch(e){/* no status yet: the page works without it */}
 }
+// ---- network numbers: network.json is written by a scheduled GitHub run (see netstats/) ----
 const NET_URL='https://raw.githubusercontent.com/Caw-Lab/caw-node-portal/data-network/network.json';
 let net=null;
 async function loadNet(){
@@ -219,44 +548,60 @@ async function loadNet(){
   }catch(e){/* no file yet: the page works without it */}
 }
 function spark(tile,key){
-  const old=tile.querySelector('svg');if(old)old.remove();
+  const host=tile.querySelector('.hint');if(!host)return;
+  const old=host.querySelector('svg');if(old)old.remove();
   const points=NET.sparkPoints(NET.series(net.history,key),100,20);
   if(!points)return;
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','spark');svg.setAttribute('viewBox','0 -2 100 24');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
   const line=document.createElementNS('http://www.w3.org/2000/svg','polyline');line.setAttribute('points',points);
-  svg.appendChild(line);tile.appendChild(svg);
+  svg.appendChild(line);host.appendChild(svg);
 }
 function renderNet(){
-  const info=document.getElementById('netinfo');
-  if(!net){info.hidden=true;return}
-  const L=net.latest;
-  const atLeast=n=>n===null?null:(lang==='ja'?NET.groupDigits(n)+' 以上':'≥ '+NET.groupDigits(n));
-  const texts={users:atLeast(L.users),posts:atLeast(L.posts),activeWeek:atLeast(L.activeWeek),actions:L.actions===null?null:NET.groupDigits(L.actions),depositedWei:NET.formatCaw(L.depositedWei)};
-  for(const key of Object.keys(texts)){
-    const tile=document.getElementById('t_'+key);
-    tile.hidden=texts[key]===null;
-    document.getElementById('v_'+key).textContent=texts[key]===null?'':texts[key];
-    if(texts[key]!==null)spark(tile,key);else{const old=tile.querySelector('svg');if(old)old.remove()}
+  const about=document.getElementById('aboutnet');const asof=document.getElementById('asof');
+  if(!net){about.hidden=true;asof.textContent='';return}
+  const L=net.latest;const more=lang==='ja'?'以上':'+';
+  const tiles={users:L.users,posts:L.posts,actions:L.actions};
+  for(const key of Object.keys(tiles)){
+    const tile=document.getElementById('t_'+key);const n=tiles[key];
+    tile.hidden=n===null;
+    document.getElementById('v_'+key).textContent=n===null?'':NET.groupDigits(n);
+    document.getElementById('u_'+key).textContent=n===null||key==='actions'?'':more;
+    if(n!==null)spark(tile,key);else{const old=tile.querySelector('svg');if(old)old.remove()}
   }
-  info.hidden=false;
-  info.textContent=I[lang].net_note.replace('{date}',net.generatedAt);
+  const wk=document.getElementById('t_activeWeek');wk.hidden=L.activeWeek===null;
+  document.getElementById('v_activeWeek').textContent=L.activeWeek===null?'':NET.groupDigits(L.activeWeek)+(lang==='ja'?' 以上':'+');
+  const dep=NET.formatCaw(L.depositedWei);const dt=document.getElementById('t_depositedWei');dt.hidden=dep===null;
+  document.getElementById('v_depositedWei').textContent=dep===null?'':dep;
+  about.hidden=false;
+  document.getElementById('netinfo').textContent=I[lang].net_note;
+  asof.textContent=I[lang].asof.replace('{date}',net.generatedAt);
 }
 const VERIFY_URL='https://caw-frontend-verify.zinsanjp.workers.dev/'; // the link only fills in the address; the check starts there, when the person presses the button
 const rows=[];const byUrl=new Map();const views=new Map();const MAXROWS=40;
 function build(n){
-  const c=document.createElement('div');c.className='card';
-  const l=document.createElement('div');
+  const li=document.createElement('li');li.className='row';
+  const dot=document.createElement('span');dot.className='dot wait';li.appendChild(dot);
   const url=safeUrl(n.apiUrl);
+  const who=document.createElement('div');who.className='who';
   let nm;
-  if(url){nm=document.createElement('a');nm.href=url;nm.target='_blank';nm.rel='noopener noreferrer'}else{nm=document.createElement('span')}
-  nm.className='name';nm.textContent=String(n.apiUrl).slice(0,120);l.appendChild(nm);
-  const m=document.createElement('div');m.className='meta';
-  l.appendChild(m);const bx=document.createElement('div');bx.className='badges';l.appendChild(bx);c.appendChild(l);
-  const w=document.createElement('div');w.className='lat';const t=document.createElement('span');t.textContent='—';w.appendChild(t);const av=document.createElement('span');av.className='sub2';w.appendChild(av);const bar=document.createElement('div');bar.className='bar';const fill=document.createElement('i');bar.appendChild(fill);w.appendChild(bar);c.appendChild(w);
-  if(n.comment){const cm=document.createElement('div');cm.className='comment';cm.textContent=n.comment;c.appendChild(cm);}
-  if(url){const v=document.createElement('a');v.className='go';v.href=VERIFY_URL+'?site='+encodeURIComponent(new URL(url).hostname);v.target='_blank';v.rel='noopener noreferrer';v.dataset.i18n='verify';v.textContent=I[lang].verify;c.appendChild(v)}
-  const row={n,url,t,fill,av,m,badges:bx,card:c,hist:[],state:null};rows.push(row);if(url)byUrl.set(url,row);renderRow(row);return c;
+  if(url){nm=document.createElement('a');nm.href=url;nm.target='_blank';nm.rel='noopener noreferrer';nm.textContent=new URL(url).hostname}else{nm=document.createElement('span');nm.textContent=String(n.apiUrl).slice(0,120)}
+  nm.className='name';who.appendChild(nm);
+  const intro=document.createElement('p');intro.className='intro';who.appendChild(intro);
+  const meta=document.createElement('div');meta.className='meta';
+  const bx=document.createElement('span');bx.className='tags';const m=document.createElement('span');
+  meta.append(bx,m);who.appendChild(meta);li.appendChild(who);
+  const sp=document.createElement('div');sp.className='speed';
+  const ms=document.createElement('div');ms.className='ms';const t=document.createElement('span');t.textContent='—';const av=document.createElement('small');ms.append(t,av);
+  const bar=document.createElement('div');bar.className='bar';const fill=document.createElement('i');bar.appendChild(fill);sp.append(ms,bar);li.appendChild(sp);
+  const acts=document.createElement('div');acts.className='acts';
+  if(url){
+    const host=new URL(url).hostname;
+    const c=document.createElement('a');c.className='btn';c.href=VERIFY_URL+'?site='+encodeURIComponent(host);c.target='_blank';c.rel='noopener noreferrer';c.dataset.i18n='check';c.dataset.i18nTitle='check_tip';c.textContent=I[lang].check;c.title=I[lang].check_tip;acts.appendChild(c);
+    const o=document.createElement('a');o.className='btn primary';o.href=url;o.target='_blank';o.rel='noopener noreferrer';o.dataset.i18n='open';o.dataset.i18nTitle='open_tip';o.textContent=I[lang].open;o.title=I[lang].open_tip;acts.appendChild(o);
+  }
+  li.appendChild(acts);
+  const row={n,url,t,fill,av,m,badges:bx,intro,dot,speed:sp,card:li,hist:[],state:null};rows.push(row);if(url)byUrl.set(url,row);renderRow(row);return li;
 }
 for(const n of NODES){document.getElementById(n.group).appendChild(build(n))}
 loadFc();loadNet();
@@ -320,7 +665,7 @@ function aggregate(){
 }
 // Order: responding nodes with a complete list first, then those with "some issues", then those that did not answer.
 function rank(r){return r.state==='ok'?((r.compl==='partial'||r.compl==='empty')?1:0):2}
-// Filter and sort apply to the registry list only. "fast" uses the average of the last measurements in 100 ms steps, so cards do not jump on every refresh.
+// Filter and sort apply to the registry list only (the mainline row stays at the top). "fast" uses the average of the last measurements in 100 ms steps, so rows do not jump on every refresh.
 const view={f:'all',o:'default'};
 try{const v=JSON.parse(localStorage.getItem('view')||'{}');if(v.f==='up')view.f='up';if(v.o==='fast'||v.o==='listed')view.o=v.o}catch(e){}
 function cmp(a,b){
@@ -333,50 +678,54 @@ function sortCards(){
   const box=document.getElementById('normal');
   const list=rows.filter(r=>!r.hand&&r.card&&r.card.parentNode===box).sort(cmp);
   for(const r of list)r.card.hidden=view.f==='up'&&(r.state==='err'||r.state==='skip');
-  const cur=[...box.children];
-  if(list.every((r,i)=>cur[i]===r.card))return;
+  const cur=[...box.children].filter(el=>!el.classList.contains('main'));
+  if(list.length===cur.length&&list.every((r,i)=>cur[i]===r.card))return;
   for(const r of list)box.appendChild(r.card);
 }
-for(const b of document.querySelectorAll('.seg button'))b.onclick=()=>{
-  if(b.dataset.k==='f')view.f=b.dataset.v;else view.o=b.dataset.v;
-  try{localStorage.setItem('view',JSON.stringify(view))}catch(e){}
-  for(const x of document.querySelectorAll('.seg button'))x.classList.toggle('on',(x.dataset.k==='f'?view.f:view.o)===x.dataset.v);
+function saveView(){try{localStorage.setItem('view',JSON.stringify(view))}catch(e){}}
+for(const b of document.querySelectorAll('#filterseg button'))b.onclick=()=>{
+  view.f=b.dataset.v;saveView();
+  for(const x of document.querySelectorAll('#filterseg button'))x.setAttribute('aria-pressed',String(view.f===x.dataset.v));
   sortCards();
 };
+document.getElementById('sortsel').onchange=ev=>{const v=ev.target.value;if(v==='default'||v==='fast'||v==='listed'){view.o=v;saveView();sortCards()}};
 function renderSummary(){
   const ms=rows.filter(r=>r.url&&r.state);const ok=ms.filter(r=>r.state==='ok');
   const up=document.getElementById('s_up_v');
-  up.textContent=ms.length?ok.length+'/'+ms.length:'—';
-  up.style.color=!ms.length?'':ok.length===ms.length?'var(--ok)':ok.length?'var(--warn)':'var(--bad)';
+  up.textContent=ms.length?String(ok.length):'—';
+  document.getElementById('s_up_of').textContent=ms.length?(lang==='ja'?'/ '+ms.length+' 台':'/ '+ms.length):'';
+  const meter=document.getElementById('s_up_meter');
+  meter.firstChild.style.width=ms.length?(ok.length/ms.length*100)+'%':'0%';
+  meter.className='meter'+(ms.length&&ok.length!==ms.length?(ok.length?' part':' none'):'');
+  meter.setAttribute('aria-label',ms.length?ok.length+'/'+ms.length:'');
   const md=document.getElementById('s_med_v');
-  if(ok.length){const a=ok.map(r=>r.ms).sort((x,y)=>x-y);const m=a.length%2?a[(a.length-1)/2]:Math.round((a[a.length/2-1]+a[a.length/2])/2);md.textContent=m+' ms';md.style.color=color(m)}
-  else{md.textContent='—';md.style.color=''}
-  document.getElementById('s_n_v').textContent=live?String(live.N):'—';
+  if(ok.length){const a=ok.map(r=>r.ms).sort((x,y)=>x-y);const m=a.length%2?a[(a.length-1)/2]:Math.round((a[a.length/2-1]+a[a.length/2])/2);md.textContent=m+' ms'}
+  else{md.textContent='—'}
 }
 function updateFromViews(){
   if(!views.size)return;
   const ag=aggregate();const agg=ag.res;const present=new Set();let bad=0,hidden=0;
   for(const r of rows){if(r.url&&ag.status.has(r.url))r.compl=ag.status.get(r.url);else r.compl=undefined}
-  if(!ag.N){live={N:0,incomplete:ag.incomplete,time:new Date(),bad:0,hidden:0};rows.forEach(renderRow);renderLive();return}
+  if(!ag.N){live={N:0,incomplete:ag.incomplete,time:new Date(),bad:0,hidden:0};rows.forEach(renderRow);renderLive();renderRegNote();return}
   for(const a of agg){
     if(!a.url){bad++;continue}
     present.add(a.url);
     const r=byUrl.get(a.url);
     if(r){Object.assign(r.n,{regs:a.regs,latest:a.latest,own:a.own,activeAny:a.activeAny,seen:a.seen,N:a.N});renderRow(r)}
-    else if(document.querySelectorAll('#normal .card').length<MAXROWS){
+    else if(document.querySelectorAll('#normal .row:not(.main)').length<MAXROWS){
       document.getElementById('normal').appendChild(build({apiUrl:a.url,regs:a.regs,latest:a.latest,own:a.own,activeAny:a.activeAny,seen:a.seen,N:a.N,comment:''}));
     }else hidden++;
   }
   for(const [u,r] of byUrl)if(!present.has(u)){r.n.seen=0;r.n.N=ag.N;renderRow(r)}
-  rows.forEach(renderRow);sortCards();
-  live={N:ag.N,incomplete:ag.incomplete,time:new Date(),bad,hidden};renderLive();
+  rows.forEach(renderRow);sortCards();renderFcSection();
+  live={N:ag.N,incomplete:ag.incomplete,time:new Date(),bad,hidden};renderLive();renderRegNote();
 }
 let busy=false;
 async function all(){
   if(busy)return;busy=true;
   try{await Promise.all(rows.map(measure));updateFromViews()}finally{renderSummary();busy=false}
 }
-rows.unshift({state:null,url:safeUrl('https://test2.caw.social'),n:{apiUrl:'https://test2.caw.social'},t:document.querySelector('#gil .lat span'),fill:document.querySelector('#gil .bar i'),av:document.querySelector('#gil .sub2'),badges:document.querySelector('#gil .badges'),hand:true,hist:[]});
+rows.unshift({state:null,url:safeUrl('https://test2.caw.social'),n:{apiUrl:'https://test2.caw.social'},t:document.querySelector('#gil .ms span'),fill:document.querySelector('#gil .bar i'),av:document.querySelector('#gil .ms small'),badges:document.querySelector('#gil .tags'),dot:document.querySelector('#gil .dot'),speed:document.querySelector('#gil .speed'),card:document.getElementById('gil'),hand:true,hist:[]});
 document.getElementById('re').onclick=all;
 applyLang();
 all();
