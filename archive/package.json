@@ -1,0 +1,10 @@
+{
+  "name": "caw-node-portal-archive",
+  "private": true,
+  "type": "module",
+  "description": "The archive line of the portal: reads archive.json and decides what the line says.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}
