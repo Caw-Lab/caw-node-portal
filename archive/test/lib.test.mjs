@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { decodeSubmission, buildStatus, collectArchive, ARCHIVE } from '../lib.mjs';
+import { decodeSubmission, buildStatus, collectArchive, ARCHIVE, GRACE_SECONDS } from '../lib.mjs';
 
 const w = (n) => BigInt(n).toString(16).padStart(64, '0');
 // submitter, merkleRoot, networkId, start, end, finalizedAt, status, dataCommitment
@@ -20,19 +20,22 @@ test('wrong length, wrong shape, unknown status and huge numbers are refused', (
   assert.throws(() => decodeSubmission(1, raw({ deadline: 2n ** 60n })), /too large/);
 });
 
-test('pending ones are split at the deadline; the deadline second itself is still in the window', () => {
+test('pending ones become overdue only after the deadline plus the grace period', () => {
+  const G = GRACE_SECONDS;
   const subs = [
-    { id: 1, endCheckpoint: 16, deadline: 900, status: 'PENDING' },
-    { id: 2, endCheckpoint: 32, deadline: 1000, status: 'PENDING' },
-    { id: 3, endCheckpoint: 48, deadline: 1500, status: 'PENDING' },
-    { id: 4, endCheckpoint: 64, deadline: 100, status: 'FINALIZED' },
-    { id: 5, endCheckpoint: 80, deadline: 100, status: 'SLASHED' },
+    { id: 1, endCheckpoint: 16, deadline: 1000 - G - 100, status: 'PENDING' }, // 100 s past the grace: overdue
+    { id: 2, endCheckpoint: 32, deadline: 1000 - G, status: 'PENDING' }, // exactly at the end of the grace: not yet
+    { id: 3, endCheckpoint: 48, deadline: 1000 - 60, status: 'PENDING' }, // 60 s past the deadline: inside the grace
+    { id: 4, endCheckpoint: 64, deadline: 1500, status: 'PENDING' }, // window still running
+    { id: 5, endCheckpoint: 80, deadline: 100, status: 'FINALIZED' },
+    { id: 6, endCheckpoint: 96, deadline: 100, status: 'SLASHED' },
   ];
   const s = buildStatus({ now: Date.UTC(2026, 10, 18, 12), chainTime: 1000, submissions: subs });
-  assert.deepEqual(s.counts, { finalized: 1, pendingInWindow: 2, pendingOverdue: 1, slashed: 1 });
-  assert.equal(s.total, 5);
+  assert.deepEqual(s.counts, { finalized: 1, pendingInWindow: 3, pendingOverdue: 1, slashed: 1 });
+  assert.equal(s.total, 6);
   assert.deepEqual(s.overdue, [{ id: 1, endCheckpoint: 16, overdueSeconds: 100 }]);
-  assert.deepEqual(s.inWindow.map((x) => [x.id, x.secondsLeft]), [[2, 0], [3, 500]]);
+  assert.deepEqual(s.inWindow.map((x) => [x.id, x.secondsLeft]), [[2, 0], [3, 0], [4, 500]]);
+  assert.equal(s.graceSeconds, G);
   assert.equal(s.generatedAt, '2026-11-18T12:00:00.000Z');
   assert.equal(s.kind, 'caw-archive-status');
 });
@@ -53,8 +56,9 @@ const fakeNode = ({ chainTime = 1000, subs, failOn } = {}) => async (_url, init)
 };
 
 test('the collector reads every submission through the node', async () => {
-  const subs = [{ status: 1, deadline: 10 }, { status: 0, deadline: 500 }, { status: 0, deadline: 2000 }];
-  const s = await collectArchive({ now: 0, fetchImpl: fakeNode({ subs }) });
+  const chainTime = 100000;
+  const subs = [{ status: 1, deadline: 10 }, { status: 0, deadline: chainTime - GRACE_SECONDS - 5 }, { status: 0, deadline: chainTime + 2000 }];
+  const s = await collectArchive({ now: 0, fetchImpl: fakeNode({ subs, chainTime }) });
   assert.deepEqual(s.counts, { finalized: 1, pendingInWindow: 1, pendingOverdue: 1, slashed: 0 });
   assert.equal(s.archive, ARCHIVE.to);
 });

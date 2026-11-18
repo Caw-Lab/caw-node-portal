@@ -50,7 +50,11 @@ button{font:inherit}
 .more-line{display:flex;gap:10px 26px;flex-wrap:wrap;margin:14px 4px 0;color:var(--mute);font-size:14px}
 .more-line[hidden],.more-line>span[hidden]{display:none}
 .more-line b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
-#t_archive:not([hidden]){display:flex;align-items:center;gap:4px 8px;flex-wrap:wrap}
+.ar-btn{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-align:left}
+.ar-btn:hover{color:var(--fg)}
+.ar-btn:focus-visible{outline:2px solid var(--link);outline-offset:2px;border-radius:4px}
+#b_archive{color:var(--warn);font-weight:600}
+.ar-detail{margin:8px 4px 0;color:var(--mute);font-size:13px;line-height:1.5;max-width:64ch}
 details.about{margin:10px 4px 0;color:var(--mute);font-size:13.5px}
 details.about[hidden]{display:none}
 details.about summary{cursor:pointer;color:var(--faint);list-style:none}
@@ -149,7 +153,8 @@ footer{margin:34px 0 40px;color:var(--faint);font-size:13px;display:flex;gap:6px
 <div class="stat" id="t_posts" hidden><div class="label"><span data-i18n="n_posts"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_posts"></span></div><div class="hint"></div></div>
 <div class="stat" id="t_actions" hidden><div class="label"><span data-i18n="n_actions"></span><span class="cum" data-i18n="cum"></span></div><div class="value"><span id="v_actions"></span></div><div class="hint"></div></div>
 </div>
-<div class="more-line"><span><span data-i18n="s_med"></span> <b id="s_med_v">—</b></span><span id="t_activeWeek" hidden><span data-i18n="n_week"></span> <b id="v_activeWeek"></b></span><span id="t_depositedWei" hidden><span data-i18n="n_dep"></span> <b id="v_depositedWei"></b></span><span id="t_archive" hidden><span data-i18n="n_archive"></span> <b id="v_archive"></b> <span class="badge" id="b_archive" hidden></span></span></div>
+<div class="more-line"><span><span data-i18n="s_med"></span> <b id="s_med_v">—</b></span><span id="t_activeWeek" hidden><span data-i18n="n_week"></span> <b id="v_activeWeek"></b></span><span id="t_depositedWei" hidden><span data-i18n="n_dep"></span> <b id="v_depositedWei"></b></span><span id="t_archive" hidden><button type="button" class="ar-btn" id="ar_btn" aria-expanded="false" aria-controls="ar_detail"><span data-i18n="n_archive"></span> <b id="v_archive"></b><span id="b_archive"></span> <span aria-hidden="true">ⓘ</span></button></span></div>
+<p class="ar-detail" id="ar_detail" hidden data-i18n="ar_note"></p>
 <details class="about" id="aboutnet" hidden><summary data-i18n="about"></summary><p id="netinfo"></p></details>
 </section>
 
@@ -246,10 +251,11 @@ ja:{
   s_med:"応答速度(いまの中央値)",
   n_week:"今週の活動ユーザー(直近 7 日)",
   n_dep:"預けられた CAW(いまの残高)",
-  n_archive:"アーカイブ(Arbitrum)の提出",
-  ar_ok:"確定 {f} ・ 期間中 {w}",
-  ar_warn:"期限切れ {o} 件",
-  ar_tip:"異議申し立ての期間を過ぎても、確定されていない提出があります。確定の処理は、誰でも呼べます。",
+  n_archive:"バックアップ(Arbitrum)",
+  ar_ok:"確定 {f} 件 ・ 確認期間中 {w} 件",
+  ar_warn:"確定の操作待ち {o} 件",
+  ar_tip:"確認期間(2日)は過ぎていますが、確定の操作がされていない提出があります。確定の操作は、誰でもできます。",
+  ar_note:"CAW の操作(投稿・いいねなど)の記録は、別のチェーン(Arbitrum)にもバックアップされます。提出から 2 日の確認期間が過ぎると、確定の操作ができるようになります(自動ではなく、誰かが操作して確定します)。確認期間が過ぎても操作されていないものを、「確定の操作待ち」と表示しています。",
   ar_asof:"{date} UTC 時点",
   about:"この数字について",
   net_note:"テストネットの数字で、実際の利用の多さを示すものではありません。「累計」は、これまでの合計で、減ることはありません。「今週」は直近 7 日、「いまの残高」「いまの中央値」は現在の値です。ユーザー・投稿・今週の活動は、各ノードが申告した値のうち最大のもので、同期の遅れなどで、実際とは少しずれることがあります。アクション数(投稿・いいね・フォローなど、チェーンが処理した操作の数)と預けられた CAW は、チェーンから読んだ値です。1 日 1 回の集計です。応答速度は、いまご覧のブラウザから各ノードへの往復時間です。",
@@ -356,10 +362,11 @@ en:{
   s_med:"Response time (median, now)",
   n_week:"Active users this week (last 7 days)",
   n_dep:"CAW in deposit (current balance)",
-  n_archive:"Archive submissions (Arbitrum)",
-  ar_ok:"{f} finalized · {w} in window",
-  ar_warn:"{o} overdue",
-  ar_tip:"Some submissions are past their challenge deadline and are not finalized. Anyone may call the finalize step.",
+  n_archive:"Backup (Arbitrum)",
+  ar_ok:"{f} finalized · {w} in review",
+  ar_warn:"{o} waiting to be finalized",
+  ar_tip:"Some submissions are past their 2-day review period but nobody has finalized them yet. Anyone can.",
+  ar_note:"Records of CAW actions (posts, likes and so on) are also backed up to another chain (Arbitrum). After a 2-day review period a submission can be finalized; it is not automatic, someone has to do it. Submissions whose review period is over but that nobody has finalized yet are shown as “waiting to be finalized”.",
   ar_asof:"as of {date} UTC",
   about:"About these numbers",
   net_note:"Testnet numbers; they do not show how much the network is really used. “Total” is the sum so far and never goes down. “This week” is the last 7 days; “current balance” and “median, now” are present values. Users, posts and activity this week are the largest values the nodes reported about themselves, and can be slightly off (for example when a node is behind). Actions (posts, likes, follows and other operations the chain processed) and CAW in deposit are read from the chains. Collected once a day. Response time is the round trip from the browser you are using to each node.",
@@ -626,18 +633,18 @@ async function loadArchive(){
 }
 function renderArchive(){
   const tile=document.getElementById('t_archive');
-  if(!arch){tile.hidden=true;return}
+  if(!arch){tile.hidden=true;document.getElementById('ar_detail').hidden=true;return}
   const T=I[lang];
-  const value=document.getElementById('v_archive');
-  value.textContent=T.ar_ok.replace('{f}',arch.finalized).replace('{w}',arch.pendingInWindow);
-  const badge=document.getElementById('b_archive');
-  badge.hidden=arch.level!=='warn';
-  badge.className='badge'+(arch.level==='warn'?' warn':'');
-  badge.textContent=T.ar_warn.replace('{o}',arch.pendingOverdue);
-  badge.title=T.ar_tip;
-  tile.title=T.ar_asof.replace('{date}',arch.generatedAt);
+  document.getElementById('v_archive').textContent=T.ar_ok.replace('{f}',arch.finalized).replace('{w}',arch.pendingInWindow);
+  const waiting=document.getElementById('b_archive');
+  waiting.textContent=arch.level==='warn'?' ・ '+T.ar_warn.replace('{o}',arch.pendingOverdue):'';
+  document.getElementById('ar_btn').title=T.ar_asof.replace('{date}',arch.generatedAt);
   tile.hidden=false;
 }
+document.getElementById('ar_btn').addEventListener('click',()=>{
+  const d=document.getElementById('ar_detail');d.hidden=!d.hidden;
+  document.getElementById('ar_btn').setAttribute('aria-expanded',String(!d.hidden));
+});
 const VERIFY_URL='https://caw-frontend-verify.zinsanjp.workers.dev/'; // the link only fills in the address; the check starts there, when the person presses the button
 const rows=[];const byUrl=new Map();const views=new Map();const MAXROWS=40;
 function build(n){

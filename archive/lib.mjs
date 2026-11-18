@@ -14,6 +14,9 @@ export const ARCHIVE = {
 const SELECTOR_NEXT_ID = '0x35b96901'; // nextSubmissionId()
 const SELECTOR_SUBMISSIONS = '0xad73349e'; // submissions(uint256)
 const STATUS = ['PENDING', 'FINALIZED', 'SLASHED'];
+// A node finalizes its own submissions in an hourly loop, so right after the 2-day window ends a normal submission
+// is still open for a while. Only one that is still open this long after the deadline counts as overdue.
+export const GRACE_SECONDS = 6 * 3600;
 export const LIMITS = { maxSubmissions: 5000, concurrency: 4, responseBytes: 8192 };
 const USER_AGENT = 'caw-node-portal-archive/0.1 (+https://github.com/Caw-Lab/caw-node-portal)';
 
@@ -53,11 +56,11 @@ export function decodeSubmission(id, hex) {
 export function buildStatus({ now, chainTime, submissions }) {
   const pending = submissions.filter((s) => s.status === 'PENDING');
   const overdue = pending
-    .filter((s) => chainTime > s.deadline)
-    .map((s) => ({ id: s.id, endCheckpoint: s.endCheckpoint, overdueSeconds: chainTime - s.deadline }));
+    .filter((s) => chainTime > s.deadline + GRACE_SECONDS)
+    .map((s) => ({ id: s.id, endCheckpoint: s.endCheckpoint, overdueSeconds: chainTime - s.deadline - GRACE_SECONDS }));
   const inWindow = pending
-    .filter((s) => chainTime <= s.deadline)
-    .map((s) => ({ id: s.id, endCheckpoint: s.endCheckpoint, secondsLeft: s.deadline - chainTime }));
+    .filter((s) => chainTime <= s.deadline + GRACE_SECONDS)
+    .map((s) => ({ id: s.id, endCheckpoint: s.endCheckpoint, secondsLeft: Math.max(0, s.deadline - chainTime) }));
   return {
     schemaVersion: 1,
     kind: 'caw-archive-status',
@@ -65,6 +68,7 @@ export function buildStatus({ now, chainTime, submissions }) {
     chain: ARCHIVE.chain,
     archive: ARCHIVE.to,
     chainTime,
+    graceSeconds: GRACE_SECONDS,
     total: submissions.length,
     counts: {
       finalized: submissions.filter((s) => s.status === 'FINALIZED').length,
