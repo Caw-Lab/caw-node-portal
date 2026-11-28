@@ -1,0 +1,177 @@
+{
+ "schemaVersion": 1,
+ "kind": "caw-network-stats",
+ "generatedAt": "2026-11-28T12:16:17.069Z",
+ "note": "Testnet. users, posts and activeWeek are the largest value among the nodes that answered (what the nodes report); actions and depositedWei are read from the chains. frontends: for the nodes whose address answers with a page and a script (served) or does not (api-only), as seen by this run.",
+ "latest": {
+  "date": "2026-11-28",
+  "users": 77,
+  "posts": 749,
+  "activeWeek": 12,
+  "actions": 1917,
+  "depositedWei": "11000006212776164582202134848238889270",
+  "nodesAsked": 9,
+  "nodesAnswered": 7
+ },
+ "frontends": {
+  "https://caw-node-api.takstarjp.workers.dev": "api-only",
+  "https://cawnest.com": "served",
+  "https://dark-caw.com": "served",
+  "https://lab.tencaw-node.com": "served",
+  "https://node.ahdmesh.com": "served",
+  "https://node.biancamesh.com": "served",
+  "https://v2.cawobservatory.net": "served"
+ },
+ "history": [
+  {
+   "date": "2026-11-14",
+   "users": 69,
+   "posts": 619,
+   "activeWeek": 3,
+   "actions": 1587,
+   "depositedWei": "11000004229162450356202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 9
+  },
+  {
+   "date": "2026-11-15",
+   "users": 69,
+   "posts": 619,
+   "activeWeek": 6,
+   "actions": 1588,
+   "depositedWei": "11000004229162450356202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 9
+  },
+  {
+   "date": "2026-11-16",
+   "users": 69,
+   "posts": 623,
+   "activeWeek": 6,
+   "actions": 1600,
+   "depositedWei": "11000004229162450356202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 9
+  },
+  {
+   "date": "2026-11-17",
+   "users": 69,
+   "posts": 624,
+   "activeWeek": 6,
+   "actions": 1603,
+   "depositedWei": "11000004229162450356202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 8
+  },
+  {
+   "date": "2026-11-18",
+   "users": 69,
+   "posts": 624,
+   "activeWeek": 5,
+   "actions": 1605,
+   "depositedWei": "11000004229162450356202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 8
+  },
+  {
+   "date": "2026-11-19",
+   "users": 69,
+   "posts": 624,
+   "activeWeek": 7,
+   "actions": 1605,
+   "depositedWei": "11000004229162450356202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 8
+  },
+  {
+   "date": "2026-11-20",
+   "users": 69,
+   "posts": 624,
+   "activeWeek": 7,
+   "actions": 1605,
+   "depositedWei": "11000004229162450356202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 8
+  },
+  {
+   "date": "2026-11-21",
+   "users": 69,
+   "posts": 624,
+   "activeWeek": 6,
+   "actions": 1606,
+   "depositedWei": "11000004229162450356202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 8
+  },
+  {
+   "date": "2026-11-22",
+   "users": 70,
+   "posts": 638,
+   "activeWeek": 4,
+   "actions": 1639,
+   "depositedWei": "11000004229944482700202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 8
+  },
+  {
+   "date": "2026-11-23",
+   "users": 73,
+   "posts": 681,
+   "activeWeek": 10,
+   "actions": 1761,
+   "depositedWei": "11000006193322267358202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 8
+  },
+  {
+   "date": "2026-11-24",
+   "users": 75,
+   "posts": 703,
+   "activeWeek": 10,
+   "actions": 1810,
+   "depositedWei": "11000006198685654575202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 8
+  },
+  {
+   "date": "2026-11-25",
+   "users": null,
+   "posts": null,
+   "activeWeek": null,
+   "actions": 1828,
+   "depositedWei": "11000006198685654575202134848238889270",
+   "nodesAsked": 0,
+   "nodesAnswered": 0
+  },
+  {
+   "date": "2026-11-26",
+   "users": null,
+   "posts": null,
+   "activeWeek": null,
+   "actions": 1870,
+   "depositedWei": "11000006202581963218202134848238889270",
+   "nodesAsked": 0,
+   "nodesAnswered": 0
+  },
+  {
+   "date": "2026-11-27",
+   "users": 77,
+   "posts": 746,
+   "activeWeek": 12,
+   "actions": 1902,
+   "depositedWei": "11000006212776164582202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 8
+  },
+  {
+   "date": "2026-11-28",
+   "users": 77,
+   "posts": 749,
+   "activeWeek": 12,
+   "actions": 1917,
+   "depositedWei": "11000006212776164582202134848238889270",
+   "nodesAsked": 9,
+   "nodesAnswered": 7
+  }
+ ]
+}
