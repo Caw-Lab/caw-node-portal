@@ -1,0 +1,84 @@
+{
+  "tool": "spotcheck/0.1",
+  "generatedAt": "2026-11-28T10:26:02.328Z",
+  "sampleSize": 20,
+  "skipped": [],
+  "nodes": {
+    "https://cawnest.com": {
+      "origin": "https://cawnest.com",
+      "state": "no-list",
+      "checkedAt": "2026-11-28T10:25:46.828Z",
+      "message": "the answer is not a JSON file"
+    },
+    "https://lab.tencaw-node.com": {
+      "origin": "https://lab.tencaw-node.com",
+      "state": "inconsistent",
+      "checkedAt": "2026-11-28T10:25:47.379Z",
+      "clientVersion": "054b118af+dirty",
+      "builtAt": "2026-11-27T15:28:59.345Z",
+      "manifestHash": "597bc203e658f16480e83e84b3b3b51c80d26d4304e2d3e06662d318249e57fc",
+      "fileCount": 358,
+      "checked": 34,
+      "counts": {
+        "matched": 33,
+        "mismatched": 1,
+        "missing": 0,
+        "errored": 0
+      },
+      "complete": true,
+      "indexHtml": "different",
+      "versionChanged": false,
+      "externalScripts": [
+        "https://fonts.googleapis.com/css2"
+      ],
+      "problems": [
+        {
+          "path": "index.html",
+          "state": "different"
+        },
+        {
+          "path": "lab-notice.js",
+          "state": "unlisted"
+        }
+      ],
+      "history": [
+        {
+          "at": "2026-11-14T01:31:14.186Z",
+          "clientVersion": "83393808+dirty",
+          "manifestHash": "afcbbb8ca14899d69b3c242ed039e79959cce8c529ee99626e86346d810060f7"
+        },
+        {
+          "at": "2026-11-15T15:39:29.348Z",
+          "clientVersion": "bb85bb74c+dirty",
+          "manifestHash": "f41a6cf3b565adf59d85e0a7a20eb4e97c2b1b6725dfcd666eda0ff8a62f98a8"
+        },
+        {
+          "at": "2026-11-22T19:38:10.439Z",
+          "clientVersion": "79d8f7749+dirty",
+          "manifestHash": "0c4b39ba1b4cbb93ead0484034716c1ec08c2acac2138388bfaa254111121b73"
+        },
+        {
+          "at": "2026-11-24T17:42:25.668Z",
+          "clientVersion": "30caf0a87+dirty",
+          "manifestHash": "ec65716aea35c3ebd9993367d04bc745ad0f3249cc2aeb332d640cae01d41806"
+        },
+        {
+          "at": "2026-11-26T15:14:10.365Z",
+          "clientVersion": "190d4e40f+dirty",
+          "manifestHash": "f40f35df150221d87ae3c4fbd4baea13f1df03d25862bf22f87f78c6f59ccb45"
+        },
+        {
+          "at": "2026-11-27T18:57:50.688Z",
+          "clientVersion": "054b118af+dirty",
+          "manifestHash": "597bc203e658f16480e83e84b3b3b51c80d26d4304e2d3e06662d318249e57fc"
+        }
+      ]
+    },
+    "https://tencawffee.com": {
+      "origin": "https://tencawffee.com",
+      "state": "unreachable",
+      "checkedAt": "2026-11-28T10:25:50.173Z",
+      "message": "timed out"
+    }
+  }
+}
