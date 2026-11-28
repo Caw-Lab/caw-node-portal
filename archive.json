@@ -1,0 +1,35 @@
+{
+ "schemaVersion": 1,
+ "kind": "caw-archive-status",
+ "generatedAt": "2026-11-28T07:50:56.424Z",
+ "chain": "arbitrum-sepolia",
+ "archive": "0x3B526a24a740F8FD5Ed9688E109414Ec10786B8D",
+ "chainTime": 1795852256,
+ "graceSeconds": 21600,
+ "total": 22,
+ "counts": {
+  "finalized": 19,
+  "pendingInWindow": 2,
+  "pendingOverdue": 1,
+  "slashed": 0
+ },
+ "overdue": [
+  {
+   "id": 1,
+   "endCheckpoint": 16,
+   "overdueSeconds": 6448555
+  }
+ ],
+ "inWindow": [
+  {
+   "id": 21,
+   "endCheckpoint": 57,
+   "secondsLeft": 11656
+  },
+  {
+   "id": 22,
+   "endCheckpoint": 58,
+   "secondsLeft": 60525
+  }
+ ]
+}
